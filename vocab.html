@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akkadian Learning System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .tab-button {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 10px 10px 0 0;
+            margin: 0 5px;
+            color: #7f8c8d;
+        }
+
+        .tab-button.active {
+            background: #3498db;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .tab-button:hover {
+            background: #e8f4fd;
+            color: #2980b9;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .vocab-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 5px solid #3498db;
+        }
+
+        .vocab-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .akkadian {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .english {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .part-of-speech {
+            background: #3498db;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .usage-note {
+            font-style: italic;
+            color: #95a5a6;
+            font-size: 0.9em;
+        }
+
+        .exercise-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .question {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .option:hover {
+            background: #e8f4fd;
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .option.selected {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        .option.correct {
+            background: #27ae60;
+            color: white;
+            border-color: #229954;
+        }
+
+        .option.incorrect {
+            background: #e74c3c;
+            color: white;
+            border-color: #c0392b;
+        }
+
+        .exercise-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .progress-bar {
+            background: #ecf0f1;
+            border-radius: 10px;
+            height: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #3498db;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .feedback.correct {
+            background: #d5edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .search-container {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 1.1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .filter-select {
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 1.1em;
+            background: white;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+
+            .vocab-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .options {
+                grid-template-columns: 1fr;
+            }
+
+            .search-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>𒀭 Akkadian Learning System</h1>
+        
+        <div class="nav-tabs">
+            <button class="tab-button active" data-tab="vocabulary">Vocabulary</button>
+            <button class="tab-button" data-tab="exercises">Exercises</button>
+            <button class="tab-button" data-tab="progress">Progress</button>
+        </div>
+
+        <!-- Vocabulary Tab -->
+        <div class="tab-content active" id="vocabulary">
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search vocabulary...">
+                <select class="filter-select" id="posFilter">
+                    <option value="">All Parts of Speech</option>
+                    <option value="noun">Nouns</option>
+                    <option value="verb">Verbs</option>
+                    <option value="adjective">Adjectives</option>
+                    <option value="pronoun">Pronouns</option>
+                    <option value="preposition">Prepositions</option>
+                </select>
+            </div>
+            <div class="vocab-grid" id="vocabGrid"></div>
+        </div>
+
+        <!-- Exercises Tab -->
+        <div class="tab-content" id="exercises">
+            <div class="exercise-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="exerciseProgress"></div>
+                </div>
+                <div class="question" id="questionText">Select an exercise type to begin</div>
+                <div class="options" id="optionsContainer"></div>
+                <div class="exercise-controls">
+                    <div>
+                        <button class="btn btn-secondary" id="translationBtn">Translation</button>
+                        <button class="btn btn-secondary" id="grammarBtn">Grammar</button>
+                        <button class="btn btn-secondary" id="vocabularyBtn">Vocabulary</button>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" id="checkBtn" style="display: none;">Check Answer</button>
+                        <button class="btn btn-primary" id="nextBtn" style="display: none;">Next Question</button>
+                    </div>
+                </div>
+                <div class="feedback" id="feedback" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Progress Tab -->
+        <div class="tab-content" id="progress">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalWords">0</div>
+                    <div class="stat-label">Words Learned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="exercisesCompleted">0</div>
+                    <div class="stat-label">Exercises Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="accuracy">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="streak">0</div>
+                    <div class="stat-label">Current Streak</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CSV Data
+        const vocabularyData = `akkadian,english,part_of_speech,usage_note
+šarru,king,noun,masculine singular
+šarratu,queen,noun,feminine singular
+māru,son,noun,masculine singular
+mārtu,daughter,noun,feminine singular
+bītu,house,noun,masculine singular
+ālu,city,noun,masculine singular
+ilum,god,noun,masculine singular
+šamû,heaven/sky,noun,masculine singular
+erṣetu,earth,noun,feminine singular
+mû,water,noun,masculine plural
+šamšu,sun,noun,common singular
+warhu,month,noun,masculine singular
+šattu,year,noun,feminine singular
+ūmu,day,noun,masculine singular
+mūšu,night,noun,masculine singular
+kaspum,silver,noun,masculine singular
+hurāṣu,gold,noun,masculine singular
+šīru,flesh/meat,noun,masculine singular
+šēpu,foot,noun,masculine singular
+qātu,hand,noun,feminine singular
+rēšu,head,noun,masculine singular
+līpu,heart,noun,masculine singular
+napištu,life/soul,noun,feminine singular
+šīmtu,fate,noun,feminine singular
+balāṭu,to live,verb,infinitive
+mâtu,to die,verb,infinitive
+alāku,to go,verb,infinitive
+ṣabātu,to seize,verb,infinitive
+nadānu,to give,verb,infinitive
+leqû,to take,verb,infinitive
+šakānu,to place,verb,infinitive
+epēšu,to do/make,verb,infinitive
+qabû,to say,verb,infinitive
+šemû,to hear,verb,infinitive
+amāru,to see,verb,infinitive
+idû,to know,verb,infinitive
+râmu,to love,verb,infinitive
+šūlû,to cause to go up,verb,causative
+šūrubu,to cause to enter,verb,causative
+damqu,good,adjective,masculine singular
+lemnu,bad,adjective,masculine singular
+rabû,great,adjective,masculine singular
+ṣehru,small,adjective,masculine singular
+elû,high,adjective,masculine singular
+šaplû,low,adjective,masculine singular
+anāku,I,pronoun,1st person singular
+atta,you,pronoun,2nd person masculine singular
+atti,you,pronoun,2nd person feminine singular
+šū,he,pronoun,3rd person masculine singular
+šī,she,pronoun,3rd person feminine singular
+nīnu,we,pronoun,1st person plural
+attunu,you,pronoun,2nd person plural
+šunu,they,pronoun,3rd person masculine plural
+šina,they,pronoun,3rd person feminine plural
+ina,in/at/on,preposition,
+ana,to/for,preposition,
+ištu,from,preposition,
+eli,upon/over,preposition,
+itti,with,preposition,
+libbu,inside,preposition,with genitive`;
+
+        const exerciseData = `type,question,option1,option2,option3,option4,correct,explanation
+translation,What is the Akkadian word for 'king'?,šarru,māru,bītu,ilum,1,šarru means king in Akkadian
+translation,How do you say 'house' in Akkadian?,ālu,bītu,ilum,mû,2,bītu means house in Akkadian
+translation,What does 'māru' mean?,daughter,son,father,mother,2,māru means son in Akkadian
+translation,What is the Akkadian word for 'water'?,šamšu,mû,erṣetu,šamû,2,mû means water in Akkadian
+grammar,What is the feminine form of 'šarru' (king)?,šarratu,šarrūtu,šarrītu,šarrantu,1,The feminine form of šarru is šarratu (queen)
+grammar,Which pronoun means 'I' in Akkadian?,atta,anāku,šū,nīnu,2,anāku means 'I' in Akkadian
+grammar,What case is used after the preposition 'ana'?,nominative,accusative,genitive,dative,3,ana takes the genitive case
+vocabulary,Which word is an adjective meaning 'good'?,damqu,rabû,elû,ṣehru,1,damqu means good in Akkadian
+vocabulary,What part of speech is 'alāku'?,noun,adjective,verb,preposition,3,alāku is a verb meaning 'to go'
+vocabulary,Which word means 'to see'?,šemû,idû,amāru,qabû,3,amāru means 'to see' in Akkadian
+translation,What does 'šamû' mean?,earth,water,heaven/sky,house,3,šamû means heaven or sky in Akkadian
+translation,How do you say 'daughter' in Akkadian?,māru,mārtu,šarratu,napištu,2,mārtu means daughter in Akkadian
+grammar,What is the 3rd person masculine singular pronoun?,anāku,atta,šū,nīnu,3,šū is the 3rd person masculine singular pronoun
+vocabulary,Which word is a preposition meaning 'with'?,ana,ina,itti,eli,3,itti means 'with' in Akkadian
+translation,What is the Akkadian word for 'gold'?,kaspum,hurāṣu,šīru,mû,2,hurāṣu means gold in Akkadian`;
+
+        // Application State
+        let vocabulary = [];
+        let exercises = [];
+        let currentExercise = null;
+        let currentExerciseIndex = 0;
+        let selectedAnswer = null;
+        let exerciseType = 'translation';
+        let userStats = {
+            totalWords: 0,
+            exercisesCompleted: 0,
+            correctAnswers: 0,
+            streak: 0,
+            totalQuestions: 0
+        };
+
+        // Initialize the application
+        function init() {
+            parseCSVData();
+            setupEventListeners();
+            displayVocabulary();
+            updateStats();
+        }
+
+        // Parse CSV data
+        function parseCSVData() {
+            vocabulary = parseCSV(vocabularyData);
+            exercises = parseCSV(exerciseData);
+            userStats.totalWords = vocabulary.length;
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            const headers = lines[0].split(',');
+            return lines.slice(1).map(line => {
+                const values = line.split(',');
+                const obj = {};
+                headers.forEach((header, index) => {
+                    obj[header] = values[index];
+                });
+                return obj;
+            });
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Tab navigation
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    switchTab(e.target.dataset.tab);
+                });
+            });
+
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', filterVocabulary);
+            document.getElementById('posFilter').addEventListener('change', filterVocabulary);
+
+            // Exercise controls
+            document.getElementById('translationBtn').addEventListener('click', () => startExercise('translation'));
+            document.getElementById('grammarBtn').addEventListener('click', () => startExercise('grammar'));
+            document.getElementById('vocabularyBtn').addEventListener('click', () => startExercise('vocabulary'));
+            document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+            document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Vocabulary display and filtering
+        function displayVocabulary(filteredVocab = vocabulary) {
+            const grid = document.getElementById('vocabGrid');
+            grid.innerHTML = '';
+
+            filteredVocab.forEach(word => {
+                const card = document.createElement('div');
+                card.className = 'vocab-card';
+                card.innerHTML = `
+                    <div class="akkadian">${word.akkadian}</div>
+                    <div class="english">${word.english}</div>
+                    <div class="part-of-speech">${word.part_of_speech}</div>
+                    ${word.usage_note ? `<div class="usage-note">${word.usage_note}</div>` : ''}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterVocabulary() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const posFilter = document.getElementById('posFilter').value;
+
+            const filtered = vocabulary.filter(word => {
+                const matchesSearch = word.akkadian.toLowerCase().includes(searchTerm) ||
+                                    word.english.toLowerCase().includes(searchTerm);
+                const matchesPos = !posFilter || word.part_of_speech === posFilter;
+                return matchesSearch && matchesPos;
+            });
+
+            displayVocabulary(filtered);
+        }
+
+        // Exercise functionality
+        function startExercise(type) {
+            exerciseType = type;
+            currentExerciseIndex = 0;
+            selectedAnswer = null;
+            
+            // Filter exercises by type
+            const typeExercises = exercises.filter(ex => ex.type === type);
+            if (typeExercises.length === 0) return;
+
+            // Shuffle exercises
+            const shuffled = [...typeExercises].sort(() => Math.random() - 0.5);
+            currentExercise = shuffled[0];
+
+            displayExercise();
+            document.getElementById('checkBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('feedback').style.display = 'none';
+        }
+
+        function displayExercise() {
+            if (!currentExercise) return;
+
+            document.getElementById('questionText').textContent = currentExercise.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            for (let i = 1; i <= 4; i++) {
+                const option = currentExercise[`option${i}`];
+                if (option) {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'option';
+                    optionElement.textContent = option;
+                    optionElement.dataset.index = i;
+                    optionElement.addEventListener('click', () => selectAnswer(i, optionElement));
+                    optionsContainer.appendChild(optionElement);
+                }
+            }
+
+            updateExerciseProgress();
+        }
+
+        function selectAnswer(index, element) {
+            // Remove previous selection
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            
+            // Select current option
+            element.classList.add('selected');
+            selectedAnswer = index;
+        }
+
+        function checkAnswer() {
+            if (selectedAnswer === null) return;
+
+            const correctAnswer = parseInt(currentExercise.correct);
+            const isCorrect = selectedAnswer === correctAnswer;
+
+            // Update stats
+            userStats.totalQuestions++;
+            if (isCorrect) {
+                userStats.correctAnswers++;
+                userStats.streak++;
+            } else {
+                userStats.streak = 0;
+            }
+
+            // Visual feedback
+            document.querySelectorAll('.option').forEach((opt, index) => {
+                const optIndex = index + 1;
+                if (optIndex === correctAnswer) {
+                    opt.classList.add('correct');
+                } else if (optIndex === selectedAnswer && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            // Show feedback
+            const feedback = document.getElementById('feedback');
+            feedback.style.display = 'block';
+            feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            feedback.textContent = isCorrect ? 
+                `Correct! ${currentExercise.explanation}` : 
+                `Incorrect. ${currentExercise.explanation}`;
+
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+        }
+
+        function nextQuestion() {
+            userStats.exercisesCompleted++;
+            updateStats();
+
+            // Get next exercise
+            const typeExercises = exercises.filter(ex => ex.type === exerciseType);
+            const shuffled = [...typeExercises].sort(() => Math.random() - 0.5);
+            currentExercise = shuffled[0];
+
+            selectedAnswer = null;
+            displayExercise();
+            
+            document.getElementById('checkBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('feedback').style.display = 'none';
+        }
+
+        function updateExerciseProgress() {
+            const progress = document.getElementById('exerciseProgress');
+            const percentage = userStats.exercisesCompleted % 10 * 10;
+            progress.style.width = `${percentage}%`;
+        }
+
+        // Statistics
+        function updateStats() {
+            document.getElementById('totalWords').textContent = userStats.totalWords;
+            document.getElementById('exercisesCompleted').textContent = userStats.exercisesCompleted;
+            
+            const accuracy = userStats.totalQuestions > 0 ? 
+                Math.round((userStats.correctAnswers / userStats.totalQuestions) * 100) : 0;
+            document.getElementById('accuracy').textContent = `${accuracy}%`;
+            
+            document.getElementById('streak').textContent = userStats.streak;
+        }
+
+        // Initialize the application when the page loads
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akkadian Cuneiform Practice</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Cuneiform&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+        
+        .prompt {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .transcription {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+        
+        .instruction {
+            color: #666;
+            font-size: 0.95em;
+        }
+        
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .canvas-wrapper {
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .canvas-label {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        canvas {
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            cursor: crosshair;
+            display: block;
+            width: 100%;
+            height: auto;
+            background: #fafafa;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        button {
+            padding: 12px 24px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .primary-btn {
+            background: #667eea;
+            color: white;
+        }
+        
+        .primary-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+        
+        .secondary-btn {
+            background: #e0e7ff;
+            color: #667eea;
+        }
+        
+        .secondary-btn:hover {
+            background: #c7d2fe;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>𒀭 Akkadian Cuneiform Practice</h1>
+        <div class="subtitle">Learn to write cuneiform signs</div>
+        
+        <div class="prompt">
+            <div class="transcription" id="transcription">a</div>
+            <div class="instruction">Draw the cuneiform sign for this transcription</div>
+        </div>
+        
+        <div class="canvas-container">
+            <div class="canvas-wrapper">
+                <div class="canvas-label">Practice Canvas</div>
+                <canvas id="drawingCanvas" width="600" height="600"></canvas>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="secondary-btn" id="clearBtn">Clear</button>
+            <button class="primary-btn" id="toggleBtn">
+                <span id="toggleText">Show Reference</span>
+            </button>
+            <button class="primary-btn" id="nextBtn">Next Sign</button>
+        </div>
+    </div>
+    
+    <script>
+        // Common Akkadian cuneiform signs with their Unicode representations
+        const signs = [
+            { trans: 'a', unicode: '𒀀' },
+            { trans: 'ab', unicode: '𒀊' },
+            { trans: 'ad', unicode: '𒀜' },
+            { trans: 'ak', unicode: '𒀝' },
+            { trans: 'al', unicode: '𒀠' },
+            { trans: 'am', unicode: '𒄠' },
+            { trans: 'an', unicode: '𒀭' },
+            { trans: 'ar', unicode: '𒅈' },
+            { trans: 'aš', unicode: '𒀸' },
+            { trans: 'ba', unicode: '𒁀' },
+            { trans: 'bad', unicode: '𒁁' },
+            { trans: 'bi', unicode: '𒁉' },
+            { trans: 'da', unicode: '𒁕' },
+            { trans: 'di', unicode: '𒁲' },
+            { trans: 'du', unicode: '𒁺' },
+            { trans: 'e', unicode: '𒂊' },
+            { trans: 'en', unicode: '𒂗' },
+            { trans: 'ga', unicode: '𒂵' },
+            { trans: 'gi', unicode: '𒄀' },
+            { trans: 'gu', unicode: '𒄖' },
+            { trans: 'i', unicode: '𒄿' },
+            { trans: 'ib', unicode: '𒅁' },
+            { trans: 'id', unicode: '𒀀𒇉' },
+            { trans: 'il', unicode: '𒅋' },
+            { trans: 'im', unicode: '𒅎' },
+            { trans: 'in', unicode: '𒅔' },
+            { trans: 'iš', unicode: '𒅖' },
+            { trans: 'ka', unicode: '𒅗' },
+            { trans: 'ki', unicode: '𒆠' },
+            { trans: 'ku', unicode: '𒆪' },
+            { trans: 'la', unicode: '𒆷' },
+            { trans: 'li', unicode: '𒇷' },
+            { trans: 'lu', unicode: '𒇻' },
+            { trans: 'ma', unicode: '𒈠' },
+            { trans: 'mi', unicode: '𒈪' },
+            { trans: 'mu', unicode: '𒈬' },
+            { trans: 'na', unicode: '𒈾' },
+            { trans: 'ni', unicode: '𒉌' },
+            { trans: 'nu', unicode: '𒉡' },
+            { trans: 'pa', unicode: '𒉺' },
+            { trans: 'pi', unicode: '𒁉' },
+            { trans: 'ra', unicode: '𒊏' },
+            { trans: 'ri', unicode: '𒊑' },
+            { trans: 'ru', unicode: '𒊒' },
+            { trans: 'sa', unicode: '𒊓' },
+            { trans: 'si', unicode: '𒋛' },
+            { trans: 'šu', unicode: '𒋗' },
+            { trans: 'ta', unicode: '𒋫' },
+            { trans: 'ti', unicode: '𒋾' },
+            { trans: 'tu', unicode: '𒌅' },
+            { trans: 'u', unicode: '𒌋' },
+            { trans: 'um', unicode: '𒌝' },
+            { trans: 'ur', unicode: '𒌨' },
+            { trans: 'uš', unicode: '𒍑' },
+            { trans: 'za', unicode: '𒍝' },
+            { trans: 'zi', unicode: '𒍣' }
+        ];
+        
+        let currentSign = signs[0];
+        let isDrawing = false;
+        let showingReference = false;
+        
+        const drawingCanvas = document.getElementById('drawingCanvas');
+        const drawingCtx = drawingCanvas.getContext('2d');
+        
+        let userStrokes = [];
+        
+        // Reference canvas (off-screen for generating reference image)
+        const refCanvas = document.createElement('canvas');
+        refCanvas.width = drawingCanvas.width;
+        refCanvas.height = drawingCanvas.height;
+        const refCtx = refCanvas.getContext('2d');
+        
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = drawingCanvas.width;
+        tempCanvas.height = drawingCanvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        let drawStartPoint = null;
+        
+        // Mouse events
+        drawingCanvas.addEventListener('mousedown', startDrawing);
+        drawingCanvas.addEventListener('mousemove', draw);
+        drawingCanvas.addEventListener('mouseup', stopDrawing);
+        drawingCanvas.addEventListener('mouseout', cancelDrawing);
+        
+        // Touch events
+        drawingCanvas.addEventListener('touchstart', handleTouch);
+        drawingCanvas.addEventListener('touchmove', handleTouch);
+        drawingCanvas.addEventListener('touchend', stopDrawing);
+        
+        // Button events
+        document.getElementById('clearBtn').addEventListener('click', clearCanvas);
+        document.getElementById('toggleBtn').addEventListener('click', toggleReference);
+        document.getElementById('nextBtn').addEventListener('click', nextSign);
+        
+        function getCanvasCoordinates(e, canvas) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            return {
+                x: (e.clientX - rect.left) * scaleX,
+                y: (e.clientY - rect.top) * scaleY
+            };
+        }
+        
+        function drawWedge(ctx, x1, y1, x2, y2, color = '#333', alpha = 1.0) {
+            // Calculate direction and distance
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist < 3) return;
+            
+            // Perpendicular vector for width
+            const perpX = -dy / dist;
+            const perpY = dx / dist;
+            
+            // Width tapers from start (wide) to end (point)
+            const startWidth = 24;
+            
+            // Create wedge triangle
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x1 + perpX * startWidth, y1 + perpY * startWidth);
+            ctx.lineTo(x1 - perpX * startWidth, y1 - perpY * startWidth);
+            ctx.lineTo(x2, y2);
+            ctx.closePath();
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+        }
+        
+        function redrawCanvas() {
+            drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+            
+            // Draw reference if enabled (grayed out)
+            if (showingReference) {
+                drawingCtx.globalAlpha = 0.3;
+                drawingCtx.drawImage(refCanvas, 0, 0);
+                drawingCtx.globalAlpha = 1.0;
+            }
+            
+            // Draw all user strokes with transparency
+            userStrokes.forEach(stroke => {
+                drawWedge(drawingCtx, stroke.x1, stroke.y1, stroke.x2, stroke.y2, '#333', 0.7);
+            });
+        }
+        
+        function generateReference() {
+            refCtx.clearRect(0, 0, refCanvas.width, refCanvas.height);
+            refCtx.fillStyle = '#333';
+            refCtx.font = '280px "Noto Sans Cuneiform"';
+            refCtx.textAlign = 'center';
+            refCtx.textBaseline = 'middle';
+            refCtx.fillText(currentSign.unicode, refCanvas.width / 2, refCanvas.height / 2);
+        }
+        
+        function startDrawing(e) {
+            isDrawing = true;
+            drawStartPoint = getCanvasCoordinates(e, drawingCanvas);
+            // Save current strokes
+            tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+            redrawCanvas();
+            tempCtx.drawImage(drawingCanvas, 0, 0);
+        }
+        
+        function draw(e) {
+            if (!isDrawing || !drawStartPoint) return;
+            const currentPoint = getCanvasCoordinates(e, drawingCanvas);
+            
+            // Redraw everything plus preview
+            drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+            drawingCtx.drawImage(tempCanvas, 0, 0);
+            
+            // Draw preview wedge
+            drawWedge(drawingCtx, drawStartPoint.x, drawStartPoint.y, currentPoint.x, currentPoint.y, 'rgba(102, 126, 234, 0.8)', 0.5);
+        }
+        
+        function stopDrawing(e) {
+            if (!isDrawing || !drawStartPoint) return;
+            const endPoint = e.type.includes('touch') ? 
+                getCanvasCoordinates(e.changedTouches[0], drawingCanvas) :
+                getCanvasCoordinates(e, drawingCanvas);
+            
+            // Save the stroke
+            userStrokes.push({
+                x1: drawStartPoint.x,
+                y1: drawStartPoint.y,
+                x2: endPoint.x,
+                y2: endPoint.y
+            });
+            
+            // Redraw everything
+            redrawCanvas();
+            
+            isDrawing = false;
+            drawStartPoint = null;
+        }
+        
+        function cancelDrawing() {
+            if (isDrawing) {
+                redrawCanvas();
+            }
+            isDrawing = false;
+            drawStartPoint = null;
+        }
+        
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 'mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            drawingCanvas.dispatchEvent(mouseEvent);
+        }
+        
+        function clearCanvas() {
+            userStrokes = [];
+            redrawCanvas();
+        }
+        
+        function toggleReference() {
+            showingReference = !showingReference;
+            document.getElementById('toggleText').textContent = 
+                showingReference ? 'Hide Reference' : 'Show Reference';
+            redrawCanvas();
+        }
+        
+        function nextSign() {
+            currentSign = signs[Math.floor(Math.random() * signs.length)];
+            document.getElementById('transcription').textContent = currentSign.trans;
+            userStrokes = [];
+            showingReference = false;
+            document.getElementById('toggleText').textContent = 'Show Reference';
+            generateReference();
+            redrawCanvas();
+        }
+        
+        // Initialize
+        generateReference();
+        redrawCanvas();
+    </script>
+</body>
+</html>
