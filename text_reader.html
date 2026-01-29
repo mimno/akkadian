@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akkadian Text Reader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-label {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: block;
+            font-size: 1.1em;
+        }
+
+        .text-input {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-family: 'Times New Roman', serif;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .sample-texts {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .sample-btn {
+            padding: 8px 16px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .sample-btn:hover {
+            background: #e8f4fd;
+            border-color: #3498db;
+        }
+
+        .output-section {
+            margin-top: 30px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .interlinear {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .word-group {
+            display: inline-block;
+            text-align: center;
+            margin: 10px 15px 10px 0;
+            vertical-align: top;
+        }
+
+        .word-akkadian {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+            font-family: 'Times New Roman', serif;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .word-akkadian:hover {
+            background: #e8f4fd;
+        }
+
+        .word-akkadian.unknown {
+            color: #e74c3c;
+        }
+
+        .word-akkadian.known {
+            color: #27ae60;
+        }
+
+        .word-gloss {
+            font-size: 0.95em;
+            color: #7f8c8d;
+            margin-top: 5px;
+            max-width: 150px;
+        }
+
+        .word-pos {
+            font-size: 0.8em;
+            color: white;
+            background: #3498db;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        .word-pos.noun { background: #3498db; }
+        .word-pos.verb { background: #e74c3c; }
+        .word-pos.adjective { background: #27ae60; }
+        .word-pos.pronoun { background: #9b59b6; }
+        .word-pos.preposition { background: #f39c12; }
+        .word-pos.number { background: #1abc9c; }
+        .word-pos.conjunction { background: #e67e22; }
+        .word-pos.adverb { background: #34495e; }
+        .word-pos.particle { background: #95a5a6; }
+        .word-pos.unknown { background: #bdc3c7; }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #7f8c8d;
+        }
+
+        .word-detail {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #3498db;
+        }
+
+        .word-detail.visible {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .detail-word {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .detail-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #95a5a6;
+            padding: 5px;
+        }
+
+        .detail-close:hover {
+            color: #e74c3c;
+        }
+
+        .detail-translation {
+            font-size: 1.3em;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+
+        .detail-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-field {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .detail-field-label {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .detail-field-value {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .vocabulary-list {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .vocab-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .vocab-table th,
+        .vocab-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .vocab-table th {
+            background: #f8f9fa;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .vocab-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .frequency-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            width: 100px;
+            overflow: hidden;
+        }
+
+        .frequency-fill {
+            background: linear-gradient(90deg, #3498db, #27ae60);
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .analysis-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .analysis-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            color: #7f8c8d;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
+        }
+
+        .analysis-tab.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .analysis-tab:hover:not(.active) {
+            background: #f8f9fa;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .morphology-hint {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            margin-top: 3px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .word-group {
+                margin: 8px 10px 8px 0;
+            }
+
+            .word-akkadian {
+                font-size: 1.2em;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="dashboard.html" style="text-decoration: none; color: #3498db; font-size: 0.9em;">← Dashboard</a>
+        <h1>𒀭 Akkadian Text Reader</h1>
+        <p class="subtitle">Word-by-word glossing and grammatical analysis</p>
+
+        <div class="input-section">
+            <label class="input-label">Enter Akkadian Text (transliteration)</label>
+            <textarea class="text-input" id="textInput" placeholder="e.g., šarru rabû ina bīti ilim alāku"></textarea>
+            <div class="controls">
+                <button class="btn btn-primary" id="analyzeBtn">Analyze Text</button>
+                <button class="btn btn-secondary" id="clearBtn">Clear</button>
+            </div>
+            <div class="sample-texts">
+                <span style="color: #7f8c8d; margin-right: 10px;">Try:</span>
+                <button class="sample-btn" data-text="šarru rabû ana bīti ilim alāku">Royal inscription</button>
+                <button class="sample-btn" data-text="anāku māru šarri ina āli šakānu">Personal statement</button>
+                <button class="sample-btn" data-text="šamšu ina šamû elû mû ina nāru">Nature description</button>
+                <button class="sample-btn" data-text="abu ū ummu māru ū mārtu râmu">Family text</button>
+                <button class="sample-btn" data-text="kaspum ū hurāṣu ina bīti tamkāru">Trade document</button>
+            </div>
+        </div>
+
+        <div class="output-section" id="outputSection" style="display: none;">
+            <div class="stats-bar" id="statsBar">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalWords">0</div>
+                    <div class="stat-label">Total Words</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="knownWords">0</div>
+                    <div class="stat-label">Known</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="unknownWords">0</div>
+                    <div class="stat-label">Unknown</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="coveragePercent">0%</div>
+                    <div class="stat-label">Coverage</div>
+                </div>
+            </div>
+
+            <div class="analysis-tabs">
+                <button class="analysis-tab active" data-tab="interlinear">Interlinear</button>
+                <button class="analysis-tab" data-tab="vocabulary">Vocabulary List</button>
+            </div>
+
+            <div class="tab-content active" id="interlinear">
+                <div class="section-title">Interlinear Gloss</div>
+                <div class="interlinear" id="interlinearOutput"></div>
+                <div class="word-detail" id="wordDetail"></div>
+            </div>
+
+            <div class="tab-content" id="vocabulary">
+                <div class="section-title">Vocabulary Summary</div>
+                <div class="vocabulary-list" id="vocabularyList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Vocabulary database (355 words from vocab.csv)
+        const vocabularyCSV = `akkadian,english,part_of_speech,usage_note
+šarru,king,noun,masculine singular
+šarratu,queen,noun,feminine singular
+rubû,prince,noun,masculine singular
+rubītu,princess,noun,feminine singular
+bēlu,lord/master,noun,masculine singular
+bēltu,lady/mistress,noun,feminine singular
+awīlu,man/citizen,noun,masculine singular
+sinništu,woman,noun,feminine singular
+māru,son,noun,masculine singular
+mārtu,daughter,noun,feminine singular
+abu,father,noun,masculine singular
+ummu,mother,noun,feminine singular
+aḫu,brother,noun,masculine singular
+aḫātu,sister,noun,feminine singular
+emū,father-in-law,noun,masculine singular
+šību,old man/elder,noun,masculine singular
+ṣeḫru,child/young one,noun,masculine singular
+ṣeḫertu,young girl,noun,feminine singular
+bītu,house,noun,masculine singular
+bīti,house,noun,genitive singular
+ēkallum,palace,noun,masculine singular
+bīt ilim,temple,noun,literally house of god
+ālu,city,noun,masculine singular
+āli,city,noun,genitive singular
+ūru,city/settlement,noun,masculine singular
+kāru,harbor/port,noun,masculine singular
+sūqu,street/market,noun,masculine singular
+bābu,gate,noun,masculine singular
+dūru,wall,noun,masculine singular
+daltu,door,noun,feminine singular
+šubtum,dwelling,noun,feminine singular
+kirû,garden/orchard,noun,masculine singular
+eqlu,field,noun,masculine singular
+ugāru,meadow,noun,masculine singular
+šadû,mountain,noun,masculine singular
+tâmtu,sea,noun,feminine singular
+nāru,river,noun,masculine singular
+mû,water,noun,masculine plural
+šamû,heaven/sky,noun,masculine singular
+erṣetu,earth/land,noun,feminine singular
+qaqqaru,ground,noun,masculine singular
+abnu,stone,noun,masculine singular
+ēperu,dust/earth,noun,masculine singular
+šāru,wind,noun,masculine singular
+zunnu,rain,noun,masculine singular
+šamšu,sun,noun,common singular
+sīnu,moon,noun,masculine singular
+kakkabum,star,noun,masculine singular
+urpatu,cloud,noun,feminine singular
+berqu,lightning,noun,masculine singular
+rigmu,thunder/noise,noun,masculine singular
+šētu,frost/ice,noun,masculine singular
+ilum,god,noun,masculine singular
+ilim,god,noun,genitive singular
+ištaru,goddess,noun,feminine singular - Ishtar
+enlil,Enlil (god),noun,masculine singular - god of wind
+ea,Ea (god),noun,masculine singular - god of water
+marduk,Marduk (god),noun,masculine singular - chief god of Babylon
+šin,Sin (god),noun,masculine singular - moon god
+šamaš,Shamash (god),noun,masculine singular - sun god
+išḫara,Ishara (goddess),noun,feminine singular - love goddess
+nergal,Nergal (god),noun,masculine singular - god of war
+warhu,month,noun,masculine singular
+šattu,year,noun,feminine singular
+ūmu,day,noun,masculine singular
+mūšu,night,noun,masculine singular
+šēru,morning,noun,masculine singular
+ṣītu,evening,noun,feminine singular
+muṣû,exit/dawn,noun,masculine singular
+barû,seer/diviner,noun,masculine singular
+šangû,priest,noun,masculine singular
+ēnu,high priest,noun,masculine singular
+šāpiru,scribe,noun,masculine singular
+ummânu,craftsman,noun,masculine singular
+nappāḫu,smith,noun,masculine singular
+kīnātu,female musician,noun,feminine singular
+rē'û,shepherd,noun,masculine singular
+errēšu,farmer,noun,masculine singular
+tamkāru,merchant,noun,masculine singular
+ṭābāḫu,butcher,noun,masculine singular
+šikkaru,beer,noun,masculine singular
+karānu,wine,noun,masculine singular
+aklum,bread,noun,masculine singular
+šamnu,oil,noun,masculine singular
+dispu,honey,noun,masculine singular
+šizbu,milk,noun,masculine singular
+šīru,flesh/meat,noun,masculine singular
+nūnu,fish,noun,masculine singular
+ṣīdu,provisions/food,noun,masculine singular
+immeru,sheep,noun,masculine singular
+alpu,ox/bull,noun,masculine singular
+imīru,donkey,noun,masculine singular
+sisû,horse,noun,masculine singular
+kalbu,dog,noun,masculine singular
+šaḫû,pig,noun,masculine singular
+barbaru,wolf,noun,masculine singular
+labbu,lion,noun,masculine singular
+dābu,bear,noun,masculine singular
+ṣabītu,gazelle,noun,feminine singular
+alpū,cattle,noun,masculine plural
+ṣēnu,flock,noun,masculine singular
+iṣṣūru,bird,noun,masculine singular
+erû,eagle,noun,masculine singular
+summatu,dove,noun,feminine singular
+šēpu,foot,noun,masculine singular
+qātu,hand,noun,feminine singular
+rēšu,head,noun,masculine singular
+pūtu,face,noun,masculine singular
+īnu,eye,noun,feminine singular
+uznu,ear,noun,feminine singular
+appu,nose,noun,masculine singular
+šaptu,lip,noun,feminine singular
+šinnu,tooth,noun,masculine singular
+lišānu,tongue,noun,masculine singular
+kišādu,neck,noun,masculine singular
+irtu,chest/breast,noun,feminine singular
+libbu,heart/mind,noun,masculine singular
+kabattu,liver,noun,feminine singular
+napištu,life/soul,noun,feminine singular
+šīru,flesh,noun,masculine singular
+eṣemtu,bone,noun,feminine singular
+dāmu,blood,noun,masculine singular
+kaspum,silver,noun,masculine singular
+hurāṣu,gold,noun,masculine singular
+siparru,bronze,noun,masculine singular
+parzillu,iron,noun,masculine singular
+abnū,stones,noun,masculine plural
+šūtēšubu,precious stones,noun,masculine plural
+lubuštu,clothing,noun,feminine singular
+ṣubātu,garment,noun,masculine singular
+šīmātu,jewelry,noun,feminine plural
+unūtu,equipment/tools,noun,masculine plural
+kakkum,weapon,noun,masculine singular
+patru,dagger/sword,noun,masculine singular
+qaštu,bow,noun,feminine singular
+uṣṣu,arrow,noun,masculine singular
+agû,crown,noun,masculine singular
+kussû,throne,noun,masculine singular
+markasu,chariot,noun,masculine singular
+elippu,ship,noun,feminine singular
+ḫarrānu,road/journey,noun,masculine singular
+girru,expedition,noun,masculine singular
+šīmtu,fate/destiny,noun,feminine singular
+šūlûtu,prayer,noun,feminine singular
+tēšûtu,confusion,noun,feminine singular
+rāmu,love,noun,masculine singular
+gamālu,favor/mercy,noun,masculine singular
+ugātu,anger,noun,feminine singular
+palāḫu,fear,noun,masculine singular
+ḫadû,joy,noun,masculine singular
+tanūgu,lamentation,noun,masculine singular
+balāṭu,to live,verb,G infinitive
+mâtu,to die,verb,G infinitive
+banû,to build,verb,G infinitive
+epēšu,to do/make,verb,G infinitive
+alāku,to go,verb,G infinitive
+târu,to return,verb,G infinitive
+kašādu,to reach/arrive,verb,G infinitive
+ṣabātu,to seize/take,verb,G infinitive
+nadānu,to give,verb,G infinitive
+leqû,to take/receive,verb,G infinitive
+šakānu,to place/put,verb,G infinitive
+našû,to lift/carry,verb,G infinitive
+tarû,to lead/guide,verb,G infinitive
+šūṣû,to bring out,verb,Š infinitive
+šūrubu,to bring in,verb,Š infinitive
+šūlû,to raise up,verb,Š infinitive
+qabû,to say/speak,verb,G infinitive
+šemû,to hear,verb,G infinitive
+amāru,to see,verb,G infinitive
+idû,to know,verb,G infinitive
+ḫasāsu,to think/remember,verb,G infinitive
+râmu,to love,verb,G infinitive
+zêru,to hate,verb,G infinitive
+ragāmu,to shout,verb,G infinitive
+bakû,to weep,verb,G infinitive
+ṣaḫātu,to laugh,verb,G infinitive
+akālu,to eat,verb,G infinitive
+šatû,to drink,verb,G infinitive
+ṣalālu,to sleep,verb,G infinitive
+qâpu,to trust,verb,G infinitive
+palāḫu,to fear,verb,G infinitive
+šūquru,to honor,verb,Š infinitive
+kaṣāru,to tie/bind,verb,G infinitive
+paṭāru,to release,verb,G infinitive
+ḫepû,to break,verb,G infinitive
+ṣeḫēru,to be small,verb,G infinitive
+rabû,to be great,verb,G infinitive
+damāqu,to be good,verb,G infinitive
+lemēnu,to be bad,verb,G infinitive
+elû,to go up,verb,G infinitive
+warādu,to go down,verb,G infinitive
+šūtubu,to dwell,verb,Š infinitive
+damqu,good,adjective,masculine singular
+damiqtu,good,adjective,feminine singular
+lemnu,bad/evil,adjective,masculine singular
+lemnetu,bad/evil,adjective,feminine singular
+rabû,great/big,adjective,masculine singular
+rabītu,great/big,adjective,feminine singular
+ṣeḫru,small/young,adjective,masculine singular
+ṣeḫertu,small/young,adjective,feminine singular
+šīru,exalted,adjective,masculine singular
+šaplû,low,adjective,masculine singular
+elû,high,adjective,masculine singular
+ṣalmu,dark/black,adjective,masculine singular
+peṣû,white,adjective,masculine singular
+warqu,green/yellow,adjective,masculine singular
+sāmu,red,adjective,masculine singular
+rapšu,wide,adjective,masculine singular
+arku,long,adjective,masculine singular
+kurû,short,adjective,masculine singular
+labīru,old,adjective,masculine singular
+eššu,new,adjective,masculine singular
+marṣu,sick,adjective,masculine singular
+šalmu,healthy,adjective,masculine singular
+anāku,I,pronoun,1st person singular
+atta,you,pronoun,2nd person masculine singular
+atti,you,pronoun,2nd person feminine singular
+šū,he,pronoun,3rd person masculine singular
+šī,she,pronoun,3rd person feminine singular
+nīnu,we,pronoun,1st person plural
+attunu,you,pronoun,2nd person masculine plural
+attina,you,pronoun,2nd person feminine plural
+šunu,they,pronoun,3rd person masculine plural
+šina,they,pronoun,3rd person feminine plural
+yâši,me,pronoun,1st person oblique
+yâti,me,pronoun,1st person accusative
+šuāti,him,pronoun,3rd person masculine accusative
+šuāši,her,pronoun,3rd person feminine accusative
+mannu,who?,pronoun,interrogative
+mīnu,what?,pronoun,interrogative
+ayyu,which?,pronoun,interrogative
+ina,in/at/on,preposition,
+ana,to/for,preposition,
+ištu,from,preposition,
+ultu,from/since,preposition,
+adi,until/as far as,preposition,
+eli,upon/over,preposition,
+šapla,under,preposition,
+itti,with,preposition,
+kīma,like/as,preposition,
+aššum,because of,preposition,
+libbu,inside,preposition,with genitive
+bīrit,between,preposition,with genitive
+maḫar,before/in front of,preposition,with genitive
+warki,after/behind,preposition,with genitive
+balum,without,preposition,with genitive
+ištēn,one (1),number,masculine
+ištiāt,one (1),number,feminine
+šinā,two (2),number,masculine
+šittā,two (2),number,feminine
+šalāšā,three (3),number,masculine
+šalāš,three (3),number,feminine
+erbā,four (4),number,masculine
+erbet,four (4),number,feminine
+ḫamšā,five (5),number,masculine
+ḫamiš,five (5),number,feminine
+šeššā,six (6),number,masculine
+šešet,six (6),number,feminine
+sebā,seven (7),number,masculine
+sebet,seven (7),number,feminine
+samānā,eight (8),number,masculine
+samānat,eight (8),number,feminine
+tišā,nine (9),number,masculine
+tišat,nine (9),number,feminine
+ešer,ten (10),number,masculine
+ešeret,ten (10),number,feminine
+ešrā,twenty (20),number,
+šalāšū,thirty (30),number,
+erbū,forty (40),number,
+ḫamšū,fifty (50),number,
+šūši,sixty (60),number,
+mē'at,one hundred (100),number,
+līmu,one thousand (1000),number,
+ū,and,conjunction,
+lū,or,conjunction,
+šumma,if,conjunction,conditional
+kī,when/that,conjunction,
+aššu,because,conjunction,
+ūlu,or,conjunction,alternative
+lā,not,negative particle,
+ul,not,negative particle,with present/preterite
+ay,not,negative particle,with precative
+ammīni,why?,adverb,interrogative
+ayyāka,where?,adverb,interrogative
+matay,when?,adverb,interrogative
+kīam,thus/so,adverb,
+anumma,now/behold,adverb,
+ūmišam,daily,adverb,
+šūlītu,formerly,adverb,
+arki,afterwards,adverb,
+ayyānu,where?,adverb,interrogative directional
+ašar,where,adverb,relative
+annû,this,demonstrative,masculine singular
+annītu,this,demonstrative,feminine singular
+ullû,that,demonstrative,masculine singular
+ullītu,that,demonstrative,feminine singular
+rīmu,wild bull/aurochs,noun,masculine singular
+nēšu,lion,noun,masculine singular
+pagru,body/corpse,noun,masculine singular
+zumru,body,noun,masculine singular
+ṭēmu,reason/report,noun,masculine singular
+amtu,female slave,noun,feminine singular
+wardu,male slave,noun,masculine singular
+ḫīṭu,sin/error,noun,masculine singular
+arnu,guilt/punishment,noun,masculine singular
+dīnu,judgment/lawsuit,noun,masculine singular
+raggu,evil/wicked,adjective,masculine singular
+kīnu,true/legitimate,adjective,masculine singular
+dannu,strong/mighty,adjective,masculine singular
+enšu,weak,adjective,masculine singular
+mādu,many/much,adjective,masculine singular
+wašābu,to sit/dwell,verb,G infinitive
+izuzzu,to stand,verb,G infinitive
+naṣāru,to guard/protect,verb,G infinitive
+kullumu,to show,verb,D infinitive
+kunnu,to establish/confirm,verb,D infinitive
+šapāru,to send,verb,G infinitive
+šarāqu,to steal,verb,G infinitive
+ḫalāqu,to perish/disappear,verb,G infinitive
+gamāru,to complete/finish,verb,G infinitive
+maḫāru,to receive/face,verb,G infinitive
+nakāru,to be hostile,verb,G infinitive
+šalāmu,to be well/healthy,verb,G infinitive
+magāru,to agree/consent,verb,G infinitive
+emēdu,to impose/lean,verb,G infinitive
+erēbu,to enter,verb,G infinitive
+waṣû,to go out,verb,G infinitive
+maqātu,to fall,verb,G infinitive
+ṭarādu,to send away,verb,G infinitive
+napāḫu,to blow/light fire,verb,G infinitive
+nasāḫu,to tear out,verb,G infinitive
+petû,to open,verb,G infinitive
+edēlu,to shut/lock,verb,G infinitive
+lapātu,to touch,verb,G infinitive
+ṭuppu,tablet,noun,masculine singular
+kanīku,sealed document,noun,masculine singular
+riksu,contract/agreement,noun,masculine singular
+šīmu,price/purchase,noun,masculine singular
+igāru,wall (of building),noun,masculine singular
+sikkatu,peg/nail,noun,feminine singular
+nīqu,offering/sacrifice,noun,masculine singular
+parṣu,rite/office,noun,masculine singular
+kakku,weapon,noun,masculine singular
+ṣēru,back/steppe,noun,masculine singular
+appāru,reed marsh,noun,masculine singular
+kiṣru,knot/wage,noun,masculine singular
+mušītu,night,noun,feminine singular
+ṣētu,heat/summer,noun,feminine singular
+kūṣu,cold/winter,noun,masculine singular
+ebūru,harvest,noun,masculine singular
+biltu,load/tribute,noun,feminine singular
+makūtu,poverty,noun,feminine singular
+šarūtu,kingship,noun,feminine singular
+bēlūtu,lordship,noun,feminine singular
+ilūtu,divinity,noun,feminine singular
+awīlūtu,humanity,noun,feminine singular
+šarri,king,noun,genitive singular
+šarrī,kings,noun,nominative plural`;
+
+        // Parse vocabulary
+        let vocabulary = [];
+        let vocabIndex = {}; // For fast lookup
+
+        function loadVocabulary() {
+            const lines = vocabularyCSV.trim().split('\n');
+            vocabulary = lines.slice(1).map((line, index) => {
+                const values = line.split(',');
+                return {
+                    id: index,
+                    akkadian: values[0] || '',
+                    english: values[1] || '',
+                    part_of_speech: values[2] || '',
+                    usage_note: values.slice(3).join(',') || ''
+                };
+            }).filter(w => w.akkadian && w.english);
+
+            // Build index for fast lookup
+            vocabulary.forEach(word => {
+                const key = normalizeWord(word.akkadian);
+                if (!vocabIndex[key]) {
+                    vocabIndex[key] = [];
+                }
+                vocabIndex[key].push(word);
+            });
+        }
+
+        // Normalize word for matching
+        function normalizeWord(word) {
+            return word.toLowerCase()
+                .replace(/[₁₂₃₄₅₆₇₈₉]/g, '')
+                .trim();
+        }
+
+        // Look up a word
+        function lookupWord(word) {
+            const normalized = normalizeWord(word);
+
+            // Direct match
+            if (vocabIndex[normalized]) {
+                return vocabIndex[normalized][0];
+            }
+
+            // Try removing common endings for fuzzy matching
+            const endings = ['u', 'i', 'a', 'um', 'im', 'am', 'ū', 'ī', 'ā', 'āti', 'ūti'];
+            for (const ending of endings) {
+                if (normalized.endsWith(ending) && normalized.length > ending.length + 2) {
+                    const stem = normalized.slice(0, -ending.length);
+                    // Check if stem + common ending exists
+                    for (const e of ['u', 'um', 'ū']) {
+                        if (vocabIndex[stem + e]) {
+                            return {
+                                ...vocabIndex[stem + e][0],
+                                morphNote: `Possible form of ${vocabIndex[stem + e][0].akkadian}`
+                            };
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        // Parse and analyze text
+        function analyzeText(text) {
+            // Split into words (handle common delimiters)
+            const words = text
+                .replace(/[.,;:!?\-\[\](){}]/g, ' ')
+                .split(/\s+/)
+                .filter(w => w.length > 0);
+
+            const analysis = [];
+            const vocabUsed = new Map();
+
+            words.forEach((word, index) => {
+                const lookup = lookupWord(word);
+                const entry = {
+                    original: word,
+                    position: index,
+                    lookup: lookup,
+                    known: lookup !== null
+                };
+
+                analysis.push(entry);
+
+                if (lookup) {
+                    const key = lookup.akkadian;
+                    if (!vocabUsed.has(key)) {
+                        vocabUsed.set(key, { word: lookup, count: 0 });
+                    }
+                    vocabUsed.get(key).count++;
+                }
+            });
+
+            return {
+                words: analysis,
+                vocabulary: Array.from(vocabUsed.values()),
+                stats: {
+                    total: words.length,
+                    known: analysis.filter(w => w.known).length,
+                    unknown: analysis.filter(w => !w.known).length
+                }
+            };
+        }
+
+        // Render interlinear output
+        function renderInterlinear(analysis) {
+            const container = document.getElementById('interlinearOutput');
+            container.innerHTML = '';
+
+            analysis.words.forEach((entry, index) => {
+                const group = document.createElement('div');
+                group.className = 'word-group';
+
+                const akkadian = document.createElement('div');
+                akkadian.className = `word-akkadian ${entry.known ? 'known' : 'unknown'}`;
+                akkadian.textContent = entry.original;
+                akkadian.dataset.index = index;
+                akkadian.addEventListener('click', () => showWordDetail(entry));
+
+                const gloss = document.createElement('div');
+                gloss.className = 'word-gloss';
+                gloss.textContent = entry.lookup ? entry.lookup.english : '?';
+
+                const pos = document.createElement('div');
+                pos.className = `word-pos ${entry.lookup ? entry.lookup.part_of_speech : 'unknown'}`;
+                pos.textContent = entry.lookup ? entry.lookup.part_of_speech : 'unknown';
+
+                group.appendChild(akkadian);
+                group.appendChild(gloss);
+                group.appendChild(pos);
+
+                if (entry.lookup && entry.lookup.morphNote) {
+                    const morphHint = document.createElement('div');
+                    morphHint.className = 'morphology-hint';
+                    morphHint.textContent = entry.lookup.morphNote;
+                    group.appendChild(morphHint);
+                }
+
+                container.appendChild(group);
+            });
+        }
+
+        // Render vocabulary list
+        function renderVocabularyList(analysis) {
+            const container = document.getElementById('vocabularyList');
+
+            if (analysis.vocabulary.length === 0) {
+                container.innerHTML = '<div class="empty-state">No known vocabulary found in text.</div>';
+                return;
+            }
+
+            // Sort by frequency
+            const sorted = analysis.vocabulary.sort((a, b) => b.count - a.count);
+            const maxCount = sorted[0].count;
+
+            let html = `
+                <table class="vocab-table">
+                    <thead>
+                        <tr>
+                            <th>Akkadian</th>
+                            <th>English</th>
+                            <th>Part of Speech</th>
+                            <th>Occurrences</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            sorted.forEach(item => {
+                const pct = (item.count / maxCount) * 100;
+                html += `
+                    <tr>
+                        <td style="font-family: 'Times New Roman', serif; font-weight: bold;">${item.word.akkadian}</td>
+                        <td>${item.word.english}</td>
+                        <td><span class="word-pos ${item.word.part_of_speech}">${item.word.part_of_speech}</span></td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span>${item.count}</span>
+                                <div class="frequency-bar">
+                                    <div class="frequency-fill" style="width: ${pct}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // Show word detail panel
+        function showWordDetail(entry) {
+            const panel = document.getElementById('wordDetail');
+
+            if (!entry.lookup) {
+                panel.innerHTML = `
+                    <div class="detail-header">
+                        <div>
+                            <div class="detail-word">${entry.original}</div>
+                            <div class="detail-translation" style="color: #e74c3c;">Unknown word</div>
+                        </div>
+                        <button class="detail-close" onclick="hideWordDetail()">&times;</button>
+                    </div>
+                    <p style="color: #7f8c8d;">This word is not in the vocabulary database. It may be a proper noun, a variant spelling, or a grammatical form not yet covered.</p>
+                `;
+            } else {
+                const word = entry.lookup;
+                panel.innerHTML = `
+                    <div class="detail-header">
+                        <div>
+                            <div class="detail-word">${word.akkadian}</div>
+                            <div class="detail-translation">${word.english}</div>
+                        </div>
+                        <button class="detail-close" onclick="hideWordDetail()">&times;</button>
+                    </div>
+                    <div class="detail-info">
+                        <div class="detail-field">
+                            <div class="detail-field-label">Part of Speech</div>
+                            <div class="detail-field-value">${word.part_of_speech}</div>
+                        </div>
+                        <div class="detail-field">
+                            <div class="detail-field-label">Form in Text</div>
+                            <div class="detail-field-value">${entry.original}</div>
+                        </div>
+                        ${word.usage_note ? `
+                        <div class="detail-field">
+                            <div class="detail-field-label">Grammar Note</div>
+                            <div class="detail-field-value">${word.usage_note}</div>
+                        </div>
+                        ` : ''}
+                        ${word.morphNote ? `
+                        <div class="detail-field">
+                            <div class="detail-field-label">Morphology</div>
+                            <div class="detail-field-value">${word.morphNote}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            panel.classList.add('visible');
+        }
+
+        function hideWordDetail() {
+            document.getElementById('wordDetail').classList.remove('visible');
+        }
+
+        // Update stats display
+        function updateStats(stats) {
+            document.getElementById('totalWords').textContent = stats.total;
+            document.getElementById('knownWords').textContent = stats.known;
+            document.getElementById('unknownWords').textContent = stats.unknown;
+
+            const coverage = stats.total > 0 ? Math.round((stats.known / stats.total) * 100) : 0;
+            document.getElementById('coveragePercent').textContent = `${coverage}%`;
+        }
+
+        // Main analyze function
+        function performAnalysis() {
+            const text = document.getElementById('textInput').value.trim();
+
+            if (!text) {
+                document.getElementById('outputSection').style.display = 'none';
+                return;
+            }
+
+            const analysis = analyzeText(text);
+
+            renderInterlinear(analysis);
+            renderVocabularyList(analysis);
+            updateStats(analysis.stats);
+
+            document.getElementById('outputSection').style.display = 'block';
+            hideWordDetail();
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            document.getElementById('analyzeBtn').addEventListener('click', performAnalysis);
+
+            document.getElementById('clearBtn').addEventListener('click', () => {
+                document.getElementById('textInput').value = '';
+                document.getElementById('outputSection').style.display = 'none';
+            });
+
+            // Sample text buttons
+            document.querySelectorAll('.sample-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('textInput').value = btn.dataset.text;
+                    performAnalysis();
+                });
+            });
+
+            // Tab switching
+            document.querySelectorAll('.analysis-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.analysis-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab).classList.add('active');
+                });
+            });
+
+            // Analyze on Enter key
+            document.getElementById('textInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    performAnalysis();
+                }
+            });
+        }
+
+        // Initialize
+        loadVocabulary();
+        setupEventListeners();
+    </script>
+</body>
+</html>

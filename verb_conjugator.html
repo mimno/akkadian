@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akkadian Verb Conjugator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-label {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.95em;
+        }
+
+        .verb-input {
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-family: 'Times New Roman', serif;
+            width: 200px;
+            transition: border-color 0.3s ease;
+        }
+
+        .verb-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .select-input {
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .quick-verbs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .quick-verb {
+            padding: 8px 16px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-family: 'Times New Roman', serif;
+            transition: all 0.3s ease;
+        }
+
+        .quick-verb:hover {
+            background: #e8f4fd;
+            border-color: #3498db;
+        }
+
+        .stem-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stem-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .stem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stem-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .stem-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stem-card.active {
+            border-color: #3498db;
+            background: #e8f4fd;
+        }
+
+        .stem-name {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .stem-meaning {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .conjugation-section {
+            margin-top: 30px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .verb-display {
+            font-family: 'Times New Roman', serif;
+            color: #3498db;
+        }
+
+        .tense-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tense-tab {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .tense-tab.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .tense-tab:hover:not(.active) {
+            background: #e8f4fd;
+        }
+
+        .conjugation-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .conjugation-table th,
+        .conjugation-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .conjugation-table th {
+            background: #2c3e50;
+            color: white;
+            font-weight: bold;
+        }
+
+        .conjugation-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .conjugation-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .person-cell {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .form-cell {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .suffix-cell {
+            font-family: monospace;
+            color: #e74c3c;
+            font-size: 0.95em;
+        }
+
+        .grammar-notes {
+            background: #fff3cd;
+            border-left: 4px solid #f39c12;
+            padding: 15px 20px;
+            margin-top: 20px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .grammar-notes h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .grammar-notes p {
+            color: #856404;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .paradigm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .paradigm-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .paradigm-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .legend-color.root { background: #2c3e50; }
+        .legend-color.prefix { background: #3498db; }
+        .legend-color.suffix { background: #e74c3c; }
+        .legend-color.infix { background: #27ae60; }
+
+        .form-breakdown {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .form-breakdown .root { color: #2c3e50; font-weight: bold; }
+        .form-breakdown .prefix { color: #3498db; }
+        .form-breakdown .suffix { color: #e74c3c; }
+        .form-breakdown .infix { color: #27ae60; }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .input-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .verb-input {
+                width: 100%;
+            }
+
+            .conjugation-table th,
+            .conjugation-table td {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="dashboard.html" style="text-decoration: none; color: #3498db; font-size: 0.9em;">← Dashboard</a>
+        <h1>𒀭 Akkadian Verb Conjugator</h1>
+        <p class="subtitle">Explore verb stems and conjugation patterns</p>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label class="input-label">Verb Root (e.g., PRS, ŠKN)</label>
+                <input type="text" class="verb-input" id="verbInput" placeholder="PRS" maxlength="4">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Verb Class</label>
+                <select class="select-input" id="verbClass">
+                    <option value="strong">Strong (Regular)</option>
+                    <option value="I-w">I-w (First weak)</option>
+                    <option value="I-n">I-n (First nun)</option>
+                    <option value="II-weak">II-weak (Hollow)</option>
+                    <option value="III-weak">III-weak (Final weak)</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" id="conjugateBtn">Conjugate</button>
+        </div>
+
+        <div class="quick-verbs">
+            <span style="color: #7f8c8d; margin-right: 10px;">Common verbs:</span>
+            <button class="quick-verb" data-root="PRS" data-class="strong">parāsu (decide)</button>
+            <button class="quick-verb" data-root="ŠKN" data-class="strong">šakānu (place)</button>
+            <button class="quick-verb" data-root="MḪR" data-class="strong">maḫāru (receive)</button>
+            <button class="quick-verb" data-root="ŠMʾ" data-class="III-weak">šemû (hear)</button>
+            <button class="quick-verb" data-root="WBL" data-class="I-w">wabālu (carry)</button>
+            <button class="quick-verb" data-root="NDN" data-class="I-n">nadānu (give)</button>
+            <button class="quick-verb" data-root="KŠD" data-class="strong">kašādu (reach)</button>
+        </div>
+
+        <div class="stem-info">
+            <div class="stem-title">Select Verb Stem</div>
+            <div class="stem-grid">
+                <div class="stem-card active" data-stem="G">
+                    <div class="stem-name">G-Stem (Grundstamm)</div>
+                    <div class="stem-meaning">Basic meaning</div>
+                </div>
+                <div class="stem-card" data-stem="D">
+                    <div class="stem-name">D-Stem (Doppelungsstamm)</div>
+                    <div class="stem-meaning">Intensive / Factitive</div>
+                </div>
+                <div class="stem-card" data-stem="Š">
+                    <div class="stem-name">Š-Stem (Šaphel)</div>
+                    <div class="stem-meaning">Causative</div>
+                </div>
+                <div class="stem-card" data-stem="N">
+                    <div class="stem-name">N-Stem (Niphal)</div>
+                    <div class="stem-meaning">Passive / Reflexive</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="outputSection" style="display: none;">
+            <div class="conjugation-section">
+                <div class="section-title">
+                    <span>Conjugation of <span class="verb-display" id="verbDisplay"></span></span>
+                    <span id="stemDisplay" style="color: #3498db;"></span>
+                </div>
+
+                <div class="tense-tabs">
+                    <button class="tense-tab active" data-tense="preterite">Preterite</button>
+                    <button class="tense-tab" data-tense="durative">Durative (Present)</button>
+                    <button class="tense-tab" data-tense="perfect">Perfect</button>
+                    <button class="tense-tab" data-tense="imperative">Imperative</button>
+                    <button class="tense-tab" data-tense="participle">Participle</button>
+                    <button class="tense-tab" data-tense="infinitive">Infinitive</button>
+                    <button class="tense-tab" data-tense="stative">Stative</button>
+                </div>
+
+                <div id="conjugationOutput"></div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color root"></div>
+                        <span>Root</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color prefix"></div>
+                        <span>Prefix</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color suffix"></div>
+                        <span>Suffix</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color infix"></div>
+                        <span>Theme vowel</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grammar-notes" id="grammarNotes"></div>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+            <h2>Enter a Verb Root</h2>
+            <p>Type a three-letter root (like PRS, ŠKN, or MḪR) and click Conjugate to see the full paradigm.</p>
+            <p style="margin-top: 15px; font-size: 0.9em;">Or click one of the common verbs above to get started.</p>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentRoot = '';
+        let currentStem = 'G';
+        let currentTense = 'preterite';
+        let currentClass = 'strong';
+
+        // Person/number labels
+        const persons = [
+            { code: '1cs', label: '1st common singular', pronoun: 'I' },
+            { code: '2ms', label: '2nd masculine singular', pronoun: 'you (m.)' },
+            { code: '2fs', label: '2nd feminine singular', pronoun: 'you (f.)' },
+            { code: '3ms', label: '3rd masculine singular', pronoun: 'he' },
+            { code: '3fs', label: '3rd feminine singular', pronoun: 'she' },
+            { code: '1cp', label: '1st common plural', pronoun: 'we' },
+            { code: '2mp', label: '2nd masculine plural', pronoun: 'you (m.pl.)' },
+            { code: '2fp', label: '2nd feminine plural', pronoun: 'you (f.pl.)' },
+            { code: '3mp', label: '3rd masculine plural', pronoun: 'they (m.)' },
+            { code: '3fp', label: '3rd feminine plural', pronoun: 'they (f.)' }
+        ];
+
+        const imperativePersons = [
+            { code: '2ms', label: '2nd masculine singular', pronoun: 'you (m.)' },
+            { code: '2fs', label: '2nd feminine singular', pronoun: 'you (f.)' },
+            { code: '2mp', label: '2nd masculine plural', pronoun: 'you (m.pl.)' },
+            { code: '2fp', label: '2nd feminine plural', pronoun: 'you (f.pl.)' }
+        ];
+
+        const stativePersons = [
+            { code: '1cs', label: '1st common singular', pronoun: 'I am...' },
+            { code: '2ms', label: '2nd masculine singular', pronoun: 'you (m.) are...' },
+            { code: '2fs', label: '2nd feminine singular', pronoun: 'you (f.) are...' },
+            { code: '3ms', label: '3rd masculine singular', pronoun: 'he is...' },
+            { code: '3fs', label: '3rd feminine singular', pronoun: 'she is...' },
+            { code: '1cp', label: '1st common plural', pronoun: 'we are...' },
+            { code: '2cp', label: '2nd common plural', pronoun: 'you (pl.) are...' },
+            { code: '3mp', label: '3rd masculine plural', pronoun: 'they (m.) are...' },
+            { code: '3fp', label: '3rd feminine plural', pronoun: 'they (f.) are...' }
+        ];
+
+        // Conjugation patterns for strong verbs
+        const patterns = {
+            G: {
+                preterite: {
+                    theme: 'a-u', // parVs pattern
+                    forms: {
+                        '1cs': { prefix: 'a', suffix: '', pattern: 'aPRuS' },
+                        '2ms': { prefix: 'ta', suffix: '', pattern: 'taPRuS' },
+                        '2fs': { prefix: 'ta', suffix: 'ī', pattern: 'taPRuSī' },
+                        '3ms': { prefix: 'i', suffix: '', pattern: 'iPRuS' },
+                        '3fs': { prefix: 'ta', suffix: '', pattern: 'taPRuS' },
+                        '1cp': { prefix: 'ni', suffix: '', pattern: 'niPRuS' },
+                        '2mp': { prefix: 'ta', suffix: 'ā', pattern: 'taPRuSā' },
+                        '2fp': { prefix: 'ta', suffix: 'ā', pattern: 'taPRuSā' },
+                        '3mp': { prefix: 'i', suffix: 'ū', pattern: 'iPRuSū' },
+                        '3fp': { prefix: 'i', suffix: 'ā', pattern: 'iPRuSā' }
+                    }
+                },
+                durative: {
+                    theme: 'a-a', // paRRaS pattern
+                    forms: {
+                        '1cs': { prefix: 'a', suffix: '', pattern: 'aPaRRaS' },
+                        '2ms': { prefix: 'ta', suffix: '', pattern: 'taPaRRaS' },
+                        '2fs': { prefix: 'ta', suffix: 'ī', pattern: 'taPaRRaSī' },
+                        '3ms': { prefix: 'i', suffix: '', pattern: 'iPaRRaS' },
+                        '3fs': { prefix: 'ta', suffix: '', pattern: 'taPaRRaS' },
+                        '1cp': { prefix: 'ni', suffix: '', pattern: 'niPaRRaS' },
+                        '2mp': { prefix: 'ta', suffix: 'ā', pattern: 'taPaRRaSā' },
+                        '2fp': { prefix: 'ta', suffix: 'ā', pattern: 'taPaRRaSā' },
+                        '3mp': { prefix: 'i', suffix: 'ū', pattern: 'iPaRRaSū' },
+                        '3fp': { prefix: 'i', suffix: 'ā', pattern: 'iPaRRaSā' }
+                    }
+                },
+                perfect: {
+                    theme: 'a-u',
+                    forms: {
+                        '1cs': { prefix: 'a', suffix: '', pattern: 'aPtaRaS' },
+                        '2ms': { prefix: 'ta', suffix: '', pattern: 'taPtaRaS' },
+                        '2fs': { prefix: 'ta', suffix: 'ī', pattern: 'taPtaRaSī' },
+                        '3ms': { prefix: 'i', suffix: '', pattern: 'iPtaRaS' },
+                        '3fs': { prefix: 'ta', suffix: '', pattern: 'taPtaRaS' },
+                        '1cp': { prefix: 'ni', suffix: '', pattern: 'niPtaRaS' },
+                        '2mp': { prefix: 'ta', suffix: 'ā', pattern: 'taPtaRaSā' },
+                        '2fp': { prefix: 'ta', suffix: 'ā', pattern: 'taPtaRaSā' },
+                        '3mp': { prefix: 'i', suffix: 'ū', pattern: 'iPtaRaSū' },
+                        '3fp': { prefix: 'i', suffix: 'ā', pattern: 'iPtaRaSā' }
+                    }
+                },
+                imperative: {
+                    forms: {
+                        '2ms': { prefix: '', suffix: '', pattern: 'PuRuS' },
+                        '2fs': { prefix: '', suffix: 'ī', pattern: 'PuRSī' },
+                        '2mp': { prefix: '', suffix: 'ā', pattern: 'PuRSā' },
+                        '2fp': { prefix: '', suffix: 'ā', pattern: 'PuRSā' }
+                    }
+                },
+                participle: {
+                    forms: {
+                        'ms': { pattern: 'PāRiSum' },
+                        'fs': { pattern: 'PāRiStum' },
+                        'mp': { pattern: 'PāRiSūtum' },
+                        'fp': { pattern: 'PāRiSātum' }
+                    }
+                },
+                infinitive: {
+                    forms: {
+                        'infinitive': { pattern: 'PaRāSum' }
+                    }
+                },
+                stative: {
+                    forms: {
+                        '1cs': { suffix: 'āku', pattern: 'PaRSāku' },
+                        '2ms': { suffix: 'āta', pattern: 'PaRSāta' },
+                        '2fs': { suffix: 'āti', pattern: 'PaRSāti' },
+                        '3ms': { suffix: '', pattern: 'PaRiS' },
+                        '3fs': { suffix: 'at', pattern: 'PaRSat' },
+                        '1cp': { suffix: 'ānu', pattern: 'PaRSānu' },
+                        '2cp': { suffix: 'ātunu', pattern: 'PaRSātunu' },
+                        '3mp': { suffix: 'ū', pattern: 'PaRSū' },
+                        '3fp': { suffix: 'ā', pattern: 'PaRSā' }
+                    }
+                }
+            },
+            D: {
+                preterite: {
+                    forms: {
+                        '1cs': { prefix: 'u', suffix: '', pattern: 'uPaRRiS' },
+                        '2ms': { prefix: 'tu', suffix: '', pattern: 'tuPaRRiS' },
+                        '2fs': { prefix: 'tu', suffix: 'ī', pattern: 'tuPaRRiSī' },
+                        '3ms': { prefix: 'u', suffix: '', pattern: 'uPaRRiS' },
+                        '3fs': { prefix: 'tu', suffix: '', pattern: 'tuPaRRiS' },
+                        '1cp': { prefix: 'nu', suffix: '', pattern: 'nuPaRRiS' },
+                        '2mp': { prefix: 'tu', suffix: 'ā', pattern: 'tuPaRRiSā' },
+                        '2fp': { prefix: 'tu', suffix: 'ā', pattern: 'tuPaRRiSā' },
+                        '3mp': { prefix: 'u', suffix: 'ū', pattern: 'uPaRRiSū' },
+                        '3fp': { prefix: 'u', suffix: 'ā', pattern: 'uPaRRiSā' }
+                    }
+                },
+                durative: {
+                    forms: {
+                        '1cs': { prefix: 'u', suffix: '', pattern: 'uPaRRaS' },
+                        '2ms': { prefix: 'tu', suffix: '', pattern: 'tuPaRRaS' },
+                        '2fs': { prefix: 'tu', suffix: 'ī', pattern: 'tuPaRRaSī' },
+                        '3ms': { prefix: 'u', suffix: '', pattern: 'uPaRRaS' },
+                        '3fs': { prefix: 'tu', suffix: '', pattern: 'tuPaRRaS' },
+                        '1cp': { prefix: 'nu', suffix: '', pattern: 'nuPaRRaS' },
+                        '2mp': { prefix: 'tu', suffix: 'ā', pattern: 'tuPaRRaSā' },
+                        '2fp': { prefix: 'tu', suffix: 'ā', pattern: 'tuPaRRaSā' },
+                        '3mp': { prefix: 'u', suffix: 'ū', pattern: 'uPaRRaSū' },
+                        '3fp': { prefix: 'u', suffix: 'ā', pattern: 'uPaRRaSā' }
+                    }
+                },
+                perfect: {
+                    forms: {
+                        '1cs': { prefix: 'u', suffix: '', pattern: 'uPtaRRiS' },
+                        '2ms': { prefix: 'tu', suffix: '', pattern: 'tuPtaRRiS' },
+                        '2fs': { prefix: 'tu', suffix: 'ī', pattern: 'tuPtaRRiSī' },
+                        '3ms': { prefix: 'u', suffix: '', pattern: 'uPtaRRiS' },
+                        '3fs': { prefix: 'tu', suffix: '', pattern: 'tuPtaRRiS' },
+                        '1cp': { prefix: 'nu', suffix: '', pattern: 'nuPtaRRiS' },
+                        '2mp': { prefix: 'tu', suffix: 'ā', pattern: 'tuPtaRRiSā' },
+                        '2fp': { prefix: 'tu', suffix: 'ā', pattern: 'tuPtaRRiSā' },
+                        '3mp': { prefix: 'u', suffix: 'ū', pattern: 'uPtaRRiSū' },
+                        '3fp': { prefix: 'u', suffix: 'ā', pattern: 'uPtaRRiSā' }
+                    }
+                },
+                imperative: {
+                    forms: {
+                        '2ms': { pattern: 'PuRRiS' },
+                        '2fs': { pattern: 'PuRRiSī' },
+                        '2mp': { pattern: 'PuRRiSā' },
+                        '2fp': { pattern: 'PuRRiSā' }
+                    }
+                },
+                participle: {
+                    forms: {
+                        'ms': { pattern: 'muPaRRiSum' },
+                        'fs': { pattern: 'muPaRRiStum' },
+                        'mp': { pattern: 'muPaRRiSūtum' },
+                        'fp': { pattern: 'muPaRRiSātum' }
+                    }
+                },
+                infinitive: {
+                    forms: {
+                        'infinitive': { pattern: 'PuRRuSum' }
+                    }
+                },
+                stative: {
+                    forms: {
+                        '1cs': { pattern: 'PuRRuSāku' },
+                        '2ms': { pattern: 'PuRRuSāta' },
+                        '2fs': { pattern: 'PuRRuSāti' },
+                        '3ms': { pattern: 'PuRRuS' },
+                        '3fs': { pattern: 'PuRRuSat' },
+                        '1cp': { pattern: 'PuRRuSānu' },
+                        '2cp': { pattern: 'PuRRuSātunu' },
+                        '3mp': { pattern: 'PuRRuSū' },
+                        '3fp': { pattern: 'PuRRuSā' }
+                    }
+                }
+            },
+            Š: {
+                preterite: {
+                    forms: {
+                        '1cs': { prefix: 'u', suffix: '', pattern: 'ušaPRiS' },
+                        '2ms': { prefix: 'tu', suffix: '', pattern: 'tušaPRiS' },
+                        '2fs': { prefix: 'tu', suffix: 'ī', pattern: 'tušaPRiSī' },
+                        '3ms': { prefix: 'u', suffix: '', pattern: 'ušaPRiS' },
+                        '3fs': { prefix: 'tu', suffix: '', pattern: 'tušaPRiS' },
+                        '1cp': { prefix: 'nu', suffix: '', pattern: 'nušaPRiS' },
+                        '2mp': { prefix: 'tu', suffix: 'ā', pattern: 'tušaPRiSā' },
+                        '2fp': { prefix: 'tu', suffix: 'ā', pattern: 'tušaPRiSā' },
+                        '3mp': { prefix: 'u', suffix: 'ū', pattern: 'ušaPRiSū' },
+                        '3fp': { prefix: 'u', suffix: 'ā', pattern: 'ušaPRiSā' }
+                    }
+                },
+                durative: {
+                    forms: {
+                        '1cs': { prefix: 'u', suffix: '', pattern: 'ušaPRaS' },
+                        '2ms': { prefix: 'tu', suffix: '', pattern: 'tušaPRaS' },
+                        '2fs': { prefix: 'tu', suffix: 'ī', pattern: 'tušaPRaSī' },
+                        '3ms': { prefix: 'u', suffix: '', pattern: 'ušaPRaS' },
+                        '3fs': { prefix: 'tu', suffix: '', pattern: 'tušaPRaS' },
+                        '1cp': { prefix: 'nu', suffix: '', pattern: 'nušaPRaS' },
+                        '2mp': { prefix: 'tu', suffix: 'ā', pattern: 'tušaPRaSā' },
+                        '2fp': { prefix: 'tu', suffix: 'ā', pattern: 'tušaPRaSā' },
+                        '3mp': { prefix: 'u', suffix: 'ū', pattern: 'ušaPRaSū' },
+                        '3fp': { prefix: 'u', suffix: 'ā', pattern: 'ušaPRaSā' }
+                    }
+                },
+                perfect: {
+                    forms: {
+                        '1cs': { prefix: 'u', suffix: '', pattern: 'uštaPRiS' },
+                        '2ms': { prefix: 'tu', suffix: '', pattern: 'tuštaPRiS' },
+                        '2fs': { prefix: 'tu', suffix: 'ī', pattern: 'tuštaPRiSī' },
+                        '3ms': { prefix: 'u', suffix: '', pattern: 'uštaPRiS' },
+                        '3fs': { prefix: 'tu', suffix: '', pattern: 'tuštaPRiS' },
+                        '1cp': { prefix: 'nu', suffix: '', pattern: 'nuštaPRiS' },
+                        '2mp': { prefix: 'tu', suffix: 'ā', pattern: 'tuštaPRiSā' },
+                        '2fp': { prefix: 'tu', suffix: 'ā', pattern: 'tuštaPRiSā' },
+                        '3mp': { prefix: 'u', suffix: 'ū', pattern: 'uštaPRiSū' },
+                        '3fp': { prefix: 'u', suffix: 'ā', pattern: 'uštaPRiSā' }
+                    }
+                },
+                imperative: {
+                    forms: {
+                        '2ms': { pattern: 'šuPRiS' },
+                        '2fs': { pattern: 'šuPRiSī' },
+                        '2mp': { pattern: 'šuPRiSā' },
+                        '2fp': { pattern: 'šuPRiSā' }
+                    }
+                },
+                participle: {
+                    forms: {
+                        'ms': { pattern: 'mušaPRiSum' },
+                        'fs': { pattern: 'mušaPRiStum' },
+                        'mp': { pattern: 'mušaPRiSūtum' },
+                        'fp': { pattern: 'mušaPRiSātum' }
+                    }
+                },
+                infinitive: {
+                    forms: {
+                        'infinitive': { pattern: 'šuPRuSum' }
+                    }
+                },
+                stative: {
+                    forms: {
+                        '1cs': { pattern: 'šuPRuSāku' },
+                        '2ms': { pattern: 'šuPRuSāta' },
+                        '2fs': { pattern: 'šuPRuSāti' },
+                        '3ms': { pattern: 'šuPRuS' },
+                        '3fs': { pattern: 'šuPRuSat' },
+                        '1cp': { pattern: 'šuPRuSānu' },
+                        '2cp': { pattern: 'šuPRuSātunu' },
+                        '3mp': { pattern: 'šuPRuSū' },
+                        '3fp': { pattern: 'šuPRuSā' }
+                    }
+                }
+            },
+            N: {
+                preterite: {
+                    forms: {
+                        '1cs': { prefix: 'a', suffix: '', pattern: 'aPPaRiS' },
+                        '2ms': { prefix: 'ta', suffix: '', pattern: 'taPPaRiS' },
+                        '2fs': { prefix: 'ta', suffix: 'ī', pattern: 'taPPaRiSī' },
+                        '3ms': { prefix: 'i', suffix: '', pattern: 'iPPaRiS' },
+                        '3fs': { prefix: 'ta', suffix: '', pattern: 'taPPaRiS' },
+                        '1cp': { prefix: 'ni', suffix: '', pattern: 'niPPaRiS' },
+                        '2mp': { prefix: 'ta', suffix: 'ā', pattern: 'taPPaRiSā' },
+                        '2fp': { prefix: 'ta', suffix: 'ā', pattern: 'taPPaRiSā' },
+                        '3mp': { prefix: 'i', suffix: 'ū', pattern: 'iPPaRiSū' },
+                        '3fp': { prefix: 'i', suffix: 'ā', pattern: 'iPPaRiSā' }
+                    }
+                },
+                durative: {
+                    forms: {
+                        '1cs': { prefix: 'a', suffix: '', pattern: 'aPPaRRaS' },
+                        '2ms': { prefix: 'ta', suffix: '', pattern: 'taPPaRRaS' },
+                        '2fs': { prefix: 'ta', suffix: 'ī', pattern: 'taPPaRRaSī' },
+                        '3ms': { prefix: 'i', suffix: '', pattern: 'iPPaRRaS' },
+                        '3fs': { prefix: 'ta', suffix: '', pattern: 'taPPaRRaS' },
+                        '1cp': { prefix: 'ni', suffix: '', pattern: 'niPPaRRaS' },
+                        '2mp': { prefix: 'ta', suffix: 'ā', pattern: 'taPPaRRaSā' },
+                        '2fp': { prefix: 'ta', suffix: 'ā', pattern: 'taPPaRRaSā' },
+                        '3mp': { prefix: 'i', suffix: 'ū', pattern: 'iPPaRRaSū' },
+                        '3fp': { prefix: 'i', suffix: 'ā', pattern: 'iPPaRRaSā' }
+                    }
+                },
+                perfect: {
+                    forms: {
+                        '1cs': { prefix: 'a', suffix: '', pattern: 'attaPRaS' },
+                        '2ms': { prefix: 'ta', suffix: '', pattern: 'tattaPRaS' },
+                        '2fs': { prefix: 'ta', suffix: 'ī', pattern: 'tattaPRaSī' },
+                        '3ms': { prefix: 'i', suffix: '', pattern: 'ittaPRaS' },
+                        '3fs': { prefix: 'ta', suffix: '', pattern: 'tattaPRaS' },
+                        '1cp': { prefix: 'ni', suffix: '', pattern: 'nittaPRaS' },
+                        '2mp': { prefix: 'ta', suffix: 'ā', pattern: 'tattaPRaSā' },
+                        '2fp': { prefix: 'ta', suffix: 'ā', pattern: 'tattaPRaSā' },
+                        '3mp': { prefix: 'i', suffix: 'ū', pattern: 'ittaPRaSū' },
+                        '3fp': { prefix: 'i', suffix: 'ā', pattern: 'ittaPRaSā' }
+                    }
+                },
+                imperative: {
+                    forms: {
+                        '2ms': { pattern: 'naPRiS' },
+                        '2fs': { pattern: 'naPRiSī' },
+                        '2mp': { pattern: 'naPRiSā' },
+                        '2fp': { pattern: 'naPRiSā' }
+                    }
+                },
+                participle: {
+                    forms: {
+                        'ms': { pattern: 'muPPaRSum' },
+                        'fs': { pattern: 'muPPaRStum' },
+                        'mp': { pattern: 'muPPaRSūtum' },
+                        'fp': { pattern: 'muPPaRSātum' }
+                    }
+                },
+                infinitive: {
+                    forms: {
+                        'infinitive': { pattern: 'naPRuSum' }
+                    }
+                },
+                stative: {
+                    forms: {
+                        '1cs': { pattern: 'naPRuSāku' },
+                        '2ms': { pattern: 'naPRuSāta' },
+                        '2fs': { pattern: 'naPRuSāti' },
+                        '3ms': { pattern: 'naPRuS' },
+                        '3fs': { pattern: 'naPRuSat' },
+                        '1cp': { pattern: 'naPRuSānu' },
+                        '2cp': { pattern: 'naPRuSātunu' },
+                        '3mp': { pattern: 'naPRuSū' },
+                        '3fp': { pattern: 'naPRuSā' }
+                    }
+                }
+            }
+        };
+
+        // Grammar notes for each tense
+        const grammarNotes = {
+            preterite: {
+                title: 'Preterite (iprus)',
+                content: 'The preterite expresses completed action in the past. It is the basic narrative tense, equivalent to English simple past ("he decided"). In main clauses, it often appears with the particle -ma for sequential narration.'
+            },
+            durative: {
+                title: 'Durative/Present (iparras)',
+                content: 'The durative (also called present-future) expresses ongoing, habitual, or future action. It features gemination (doubling) of the middle radical. Equivalent to English present or future ("he decides" / "he will decide").'
+            },
+            perfect: {
+                title: 'Perfect (iptaras)',
+                content: 'The perfect expresses completed action with present relevance, similar to English present perfect ("he has decided"). It is formed with a -ta- infix after the first radical. Less common than preterite in Old Babylonian.'
+            },
+            imperative: {
+                title: 'Imperative (purus)',
+                content: 'The imperative is used for direct commands to 2nd person. It has no prefix, only the verb stem. The prohibitive (negative command) uses lā + durative instead.'
+            },
+            participle: {
+                title: 'Participle (pārisum)',
+                content: 'The participle functions as a verbal adjective or noun meaning "one who does X" or "the X-ing one." It declines like an adjective. The G-stem participle has the pattern pāRiSum.'
+            },
+            infinitive: {
+                title: 'Infinitive (parāsum)',
+                content: 'The infinitive is a verbal noun meaning "to do X" or "the doing of X." It can take the genitive case after prepositions (ana parāsim "in order to decide") or function as the subject/object of a sentence.'
+            },
+            stative: {
+                title: 'Stative (paris)',
+                content: 'The stative expresses a state or condition resulting from an action. Unlike other conjugations, it uses suffixes rather than prefixes. Often translated with "to be" + adjective ("he is decided/separated").'
+            }
+        };
+
+        // Apply root to pattern
+        function applyRoot(pattern, root) {
+            // Root should be 3 consonants like PRS, ŠKN, etc.
+            const r1 = root[0] || 'P';
+            const r2 = root[1] || 'R';
+            const r3 = root[2] || 'S';
+
+            return pattern
+                .replace(/P/g, r1.toLowerCase())
+                .replace(/R/g, r2.toLowerCase())
+                .replace(/S/g, r3.toLowerCase());
+        }
+
+        // Render conjugation table
+        function renderConjugation() {
+            if (!currentRoot) return;
+
+            const stemData = patterns[currentStem];
+            if (!stemData || !stemData[currentTense]) return;
+
+            const tenseData = stemData[currentTense];
+            const output = document.getElementById('conjugationOutput');
+
+            let personList;
+            if (currentTense === 'imperative') {
+                personList = imperativePersons;
+            } else if (currentTense === 'stative') {
+                personList = stativePersons;
+            } else if (currentTense === 'participle') {
+                personList = [
+                    { code: 'ms', label: 'masculine singular' },
+                    { code: 'fs', label: 'feminine singular' },
+                    { code: 'mp', label: 'masculine plural' },
+                    { code: 'fp', label: 'feminine plural' }
+                ];
+            } else if (currentTense === 'infinitive') {
+                personList = [{ code: 'infinitive', label: 'Infinitive' }];
+            } else {
+                personList = persons;
+            }
+
+            let html = `
+                <table class="conjugation-table">
+                    <thead>
+                        <tr>
+                            <th>Person</th>
+                            <th>Form</th>
+                            <th>Pattern</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            personList.forEach(person => {
+                const formData = tenseData.forms[person.code];
+                if (!formData) return;
+
+                const form = applyRoot(formData.pattern, currentRoot);
+                const patternDisplay = formData.pattern;
+
+                html += `
+                    <tr>
+                        <td class="person-cell">${person.label}${person.pronoun ? ` (${person.pronoun})` : ''}</td>
+                        <td class="form-cell">${form}</td>
+                        <td class="suffix-cell">${patternDisplay}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            output.innerHTML = html;
+
+            // Update grammar notes
+            const notes = grammarNotes[currentTense];
+            document.getElementById('grammarNotes').innerHTML = `
+                <h4>${notes.title}</h4>
+                <p>${notes.content}</p>
+            `;
+        }
+
+        // Update display
+        function updateDisplay() {
+            if (!currentRoot) {
+                document.getElementById('outputSection').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('outputSection').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+
+            // Build infinitive form for display
+            const infPattern = patterns[currentStem].infinitive.forms.infinitive.pattern;
+            const infinitive = applyRoot(infPattern, currentRoot);
+
+            document.getElementById('verbDisplay').textContent = infinitive;
+            document.getElementById('stemDisplay').textContent = `${currentStem}-Stem`;
+
+            renderConjugation();
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            // Conjugate button
+            document.getElementById('conjugateBtn').addEventListener('click', () => {
+                const input = document.getElementById('verbInput').value.toUpperCase().trim();
+                if (input.length >= 3) {
+                    currentRoot = input.slice(0, 3);
+                    currentClass = document.getElementById('verbClass').value;
+                    updateDisplay();
+                }
+            });
+
+            // Enter key
+            document.getElementById('verbInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('conjugateBtn').click();
+                }
+            });
+
+            // Quick verbs
+            document.querySelectorAll('.quick-verb').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentRoot = btn.dataset.root;
+                    currentClass = btn.dataset.class;
+                    document.getElementById('verbInput').value = currentRoot;
+                    document.getElementById('verbClass').value = currentClass;
+                    updateDisplay();
+                });
+            });
+
+            // Stem selection
+            document.querySelectorAll('.stem-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.stem-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    currentStem = card.dataset.stem;
+                    updateDisplay();
+                });
+            });
+
+            // Tense tabs
+            document.querySelectorAll('.tense-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tense-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    currentTense = tab.dataset.tense;
+                    renderConjugation();
+                });
+            });
+        }
+
+        // Initialize
+        setupEventListeners();
+    </script>
+</body>
+</html>

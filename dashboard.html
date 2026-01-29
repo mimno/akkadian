@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akkadian Learning Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid #3498db;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.primary { border-top-color: #3498db; }
+        .stat-card.success { border-top-color: #27ae60; }
+        .stat-card.warning { border-top-color: #f39c12; }
+        .stat-card.danger { border-top-color: #e74c3c; }
+
+        .stat-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 1em;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.4em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .tool-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .tool-icon {
+            font-size: 2.5em;
+        }
+
+        .tool-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .tool-description {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .tool-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tool-stat {
+            background: #f8f9fa;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .tool-stat-value {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .tool-link {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            transition: background 0.3s ease;
+        }
+
+        .tool-link:hover {
+            background: #2980b9;
+        }
+
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .progress-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .progress-bar-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #27ae60);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .progress-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            text-align: center;
+        }
+
+        .progress-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .progress-item-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .progress-item-label {
+            font-size: 0.85em;
+            color: #7f8c8d;
+        }
+
+        .progress-item.new .progress-item-value { color: #95a5a6; }
+        .progress-item.learning .progress-item-value { color: #f39c12; }
+        .progress-item.mastered .progress-item-value { color: #27ae60; }
+
+        .streak-display {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f39c12, #e74c3c);
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .streak-value {
+            font-size: 4em;
+            font-weight: bold;
+        }
+
+        .streak-label {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .streak-message {
+            margin-top: 10px;
+            font-size: 0.95em;
+            opacity: 0.8;
+        }
+
+        .recent-activity {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background: #e8f4fd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .activity-text {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .activity-time {
+            font-size: 0.85em;
+            color: #7f8c8d;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .action-btn {
+            padding: 15px 30px;
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            color: #3498db;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        .action-btn.primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            background: #2980b9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .tips-section {
+            background: #fff3cd;
+            border-left: 4px solid #f39c12;
+            padding: 20px;
+            border-radius: 0 10px 10px 0;
+            margin-top: 30px;
+        }
+
+        .tips-title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .tips-content {
+            color: #856404;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stat-value {
+                font-size: 2em;
+            }
+
+            .progress-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>𒀭 Akkadian Learning Dashboard</h1>
+        <p class="subtitle">Track your progress across all learning tools</p>
+
+        <div class="quick-actions">
+            <a href="flashcards.html" class="action-btn primary">📚 Start Flashcards</a>
+            <a href="vocab.html" class="action-btn">📖 Browse Vocabulary</a>
+            <a href="cuneiform_practice.html" class="action-btn">✍️ Practice Writing</a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-icon">📚</div>
+                <div class="stat-value" id="totalWords">355</div>
+                <div class="stat-label">Total Words</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="masteredWords">0</div>
+                <div class="stat-label">Mastered</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-icon">📖</div>
+                <div class="stat-value" id="learningWords">0</div>
+                <div class="stat-label">Learning</div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-icon">⏰</div>
+                <div class="stat-value" id="dueToday">0</div>
+                <div class="stat-label">Due Today</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Vocabulary Progress</div>
+            <div class="progress-section">
+                <div class="progress-title">Overall Mastery</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="overallProgress" style="width: 0%;">0%</div>
+                </div>
+                <div class="progress-details">
+                    <div class="progress-item new">
+                        <div class="progress-item-value" id="newCount">355</div>
+                        <div class="progress-item-label">New</div>
+                    </div>
+                    <div class="progress-item learning">
+                        <div class="progress-item-value" id="learningCount">0</div>
+                        <div class="progress-item-label">Learning</div>
+                    </div>
+                    <div class="progress-item mastered">
+                        <div class="progress-item-value" id="masteredCount">0</div>
+                        <div class="progress-item-label">Mastered</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Learning Tools</div>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">📚</div>
+                        <div class="tool-name">Flashcards</div>
+                    </div>
+                    <div class="tool-description">
+                        Spaced repetition flashcards with all 355 vocabulary words. Rate your recall to optimize review intervals.
+                    </div>
+                    <div class="tool-stats">
+                        <div class="tool-stat">
+                            <span class="tool-stat-value" id="flashcardsDue">0</span> due
+                        </div>
+                        <div class="tool-stat">
+                            <span class="tool-stat-value" id="flashcardsReviewed">0</span> reviewed
+                        </div>
+                    </div>
+                    <a href="flashcards.html" class="tool-link">Start Review</a>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">📖</div>
+                        <div class="tool-name">Vocabulary Browser</div>
+                    </div>
+                    <div class="tool-description">
+                        Browse and search the complete vocabulary list. Filter by part of speech and test yourself with exercises.
+                    </div>
+                    <div class="tool-stats">
+                        <div class="tool-stat">
+                            <span class="tool-stat-value">355</span> words
+                        </div>
+                        <div class="tool-stat">
+                            <span class="tool-stat-value">8</span> categories
+                        </div>
+                    </div>
+                    <a href="vocab.html" class="tool-link">Browse Words</a>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">📝</div>
+                        <div class="tool-name">Text Reader</div>
+                    </div>
+                    <div class="tool-description">
+                        Paste Akkadian text and get instant word-by-word glossing with translations and grammatical analysis.
+                    </div>
+                    <div class="tool-stats">
+                        <div class="tool-stat">
+                            Interlinear gloss
+                        </div>
+                        <div class="tool-stat">
+                            Vocabulary summary
+                        </div>
+                    </div>
+                    <a href="text_reader.html" class="tool-link">Analyze Text</a>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">📐</div>
+                        <div class="tool-name">Verb Conjugator</div>
+                    </div>
+                    <div class="tool-description">
+                        Explore Akkadian verb conjugations across all stems (G, D, Š, N) and tenses with detailed paradigm tables.
+                    </div>
+                    <div class="tool-stats">
+                        <div class="tool-stat">
+                            4 stems
+                        </div>
+                        <div class="tool-stat">
+                            7 tenses
+                        </div>
+                    </div>
+                    <a href="verb_conjugator.html" class="tool-link">Conjugate Verbs</a>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">✍️</div>
+                        <div class="tool-name">Cuneiform Practice</div>
+                    </div>
+                    <div class="tool-description">
+                        Practice drawing cuneiform signs on a canvas with reference overlays. Learn the wedge shapes and strokes.
+                    </div>
+                    <div class="tool-stats">
+                        <div class="tool-stat">
+                            <span class="tool-stat-value">60+</span> signs
+                        </div>
+                        <div class="tool-stat">
+                            Drawing canvas
+                        </div>
+                    </div>
+                    <a href="cuneiform_practice.html" class="tool-link">Practice Writing</a>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">🔍</div>
+                        <div class="tool-name">Sign Lookup</div>
+                    </div>
+                    <div class="tool-description">
+                        Search cuneiform signs by reading, meaning, or name. Browse syllabic signs, logograms, and determinatives.
+                    </div>
+                    <div class="tool-stats">
+                        <div class="tool-stat">
+                            <span class="tool-stat-value">80+</span> signs
+                        </div>
+                        <div class="tool-stat">
+                            4 categories
+                        </div>
+                    </div>
+                    <a href="sign_lookup.html" class="tool-link">Lookup Signs</a>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">⌨️</div>
+                        <div class="tool-name">Transliteration Input</div>
+                    </div>
+                    <div class="tool-description">
+                        Type Akkadian transliterations with special characters. Insert macrons, haceks, and subscript numbers easily.
+                    </div>
+                    <div class="tool-stats">
+                        <div class="tool-stat">
+                            40+ characters
+                        </div>
+                        <div class="tool-stat">
+                            Keyboard shortcuts
+                        </div>
+                    </div>
+                    <a href="input.html" class="tool-link">Open Input Tool</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Study Streak</div>
+            <div class="streak-display" id="streakDisplay">
+                <div class="streak-value" id="streakValue">0</div>
+                <div class="streak-label">Day Streak</div>
+                <div class="streak-message" id="streakMessage">Start studying to build your streak!</div>
+            </div>
+        </div>
+
+        <div class="tips-section">
+            <div class="tips-title">💡 Learning Tips</div>
+            <div class="tips-content">
+                <p><strong>Daily practice:</strong> Review flashcards daily. Even 10-15 minutes of consistent practice beats occasional long sessions.</p>
+                <p style="margin-top: 10px;"><strong>Active recall:</strong> Try to remember the answer before flipping the card. This strengthens memory more than passive recognition.</p>
+                <p style="margin-top: 10px;"><strong>Be honest:</strong> Rate cards accurately. Marking "Easy" when you struggled will cause problems later.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load flashcard progress from localStorage
+        function loadFlashcardProgress() {
+            const saved = localStorage.getItem('akkadian_flashcard_progress');
+            if (!saved) return { progress: {}, todayNewCards: 0 };
+
+            try {
+                return JSON.parse(saved);
+            } catch {
+                return { progress: {}, todayNewCards: 0 };
+            }
+        }
+
+        // Calculate stats
+        function calculateStats() {
+            const data = loadFlashcardProgress();
+            const progress = data.progress || {};
+            const totalWords = 355;
+
+            let newCount = 0;
+            let learningCount = 0;
+            let masteredCount = 0;
+            let dueCount = 0;
+
+            const now = Date.now();
+
+            // Count cards in each state
+            for (let i = 0; i < totalWords; i++) {
+                const card = progress[i];
+                if (!card || card.state === 'new') {
+                    newCount++;
+                } else if (card.state === 'learning') {
+                    learningCount++;
+                    if (now >= card.dueDate) dueCount++;
+                } else if (card.state === 'review') {
+                    masteredCount++;
+                    if (now >= card.dueDate) dueCount++;
+                }
+            }
+
+            // Cards without progress entry are new
+            const cardsWithProgress = Object.keys(progress).length;
+            newCount = totalWords - cardsWithProgress + newCount;
+
+            return {
+                total: totalWords,
+                new: Math.max(0, totalWords - learningCount - masteredCount),
+                learning: learningCount,
+                mastered: masteredCount,
+                due: dueCount + Math.min(20, totalWords - learningCount - masteredCount), // Include new cards up to daily limit
+                reviewed: cardsWithProgress
+            };
+        }
+
+        // Calculate streak
+        function calculateStreak() {
+            const data = loadFlashcardProgress();
+            const lastStudyDate = data.lastStudyDate;
+            const today = new Date().toDateString();
+
+            // Simple streak logic - just check if studied today
+            if (lastStudyDate === today) {
+                return { streak: 1, message: "Great! You've studied today." };
+            } else if (lastStudyDate) {
+                const lastDate = new Date(lastStudyDate);
+                const todayDate = new Date(today);
+                const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+
+                if (diffDays === 1) {
+                    return { streak: 1, message: "Study now to keep your streak going!" };
+                } else {
+                    return { streak: 0, message: "Start a new streak today!" };
+                }
+            }
+
+            return { streak: 0, message: "Start studying to build your streak!" };
+        }
+
+        // Update UI
+        function updateDashboard() {
+            const stats = calculateStats();
+            const streak = calculateStreak();
+
+            // Update stat cards
+            document.getElementById('masteredWords').textContent = stats.mastered;
+            document.getElementById('learningWords').textContent = stats.learning;
+            document.getElementById('dueToday').textContent = stats.due;
+
+            // Update progress section
+            document.getElementById('newCount').textContent = stats.new;
+            document.getElementById('learningCount').textContent = stats.learning;
+            document.getElementById('masteredCount').textContent = stats.mastered;
+
+            // Update progress bar
+            const masteryPercent = Math.round((stats.mastered / stats.total) * 100);
+            const progressBar = document.getElementById('overallProgress');
+            progressBar.style.width = `${masteryPercent}%`;
+            progressBar.textContent = `${masteryPercent}%`;
+
+            // Update flashcard-specific stats
+            document.getElementById('flashcardsDue').textContent = stats.due;
+            document.getElementById('flashcardsReviewed').textContent = stats.learning + stats.mastered;
+
+            // Update streak
+            document.getElementById('streakValue').textContent = streak.streak;
+            document.getElementById('streakMessage').textContent = streak.message;
+
+            // Update streak display color based on activity
+            const streakDisplay = document.getElementById('streakDisplay');
+            if (streak.streak > 0) {
+                streakDisplay.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+            }
+        }
+
+        // Initialize
+        updateDashboard();
+
+        // Refresh stats every minute
+        setInterval(updateDashboard, 60000);
+    </script>
+</body>
+</html>

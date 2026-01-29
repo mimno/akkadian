@@ -13,7 +13,7 @@ abu,father,noun,masculine singular
 ummu,mother,noun,feminine singular
 aḫu,brother,noun,masculine singular
 aḫātu,sister,noun,feminine singular
-rabû,grandfather,noun,masculine singular
+emū,father-in-law,noun,masculine singular
 šību,old man/elder,noun,masculine singular
 ṣeḫru,child/young one,noun,masculine singular
 ṣeḫertu,young girl,noun,feminine singular
@@ -47,7 +47,7 @@ sīnu,moon,noun,masculine singular
 kakkabum,star,noun,masculine singular
 urpatu,cloud,noun,feminine singular
 berqu,lightning,noun,masculine singular
-rīmu,thunder,noun,masculine singular
+rigmu,thunder/noise,noun,masculine singular
 šētu,frost/ice,noun,masculine singular
 ilum,god,noun,masculine singular
 ištaru,goddess,noun,feminine singular - Ishtar
@@ -111,8 +111,8 @@ appu,nose,noun,masculine singular
 šinnu,tooth,noun,masculine singular
 lišānu,tongue,noun,masculine singular
 kišādu,neck,noun,masculine singular
-rīqu,chest,noun,masculine singular
-līpu,heart,noun,masculine singular
+irtu,chest/breast,noun,feminine singular
+libbu,heart/mind,noun,masculine singular
 kabattu,liver,noun,feminine singular
 napištu,life/soul,noun,feminine singular
 šīru,flesh,noun,masculine singular
@@ -129,7 +129,7 @@ lubuštu,clothing,noun,feminine singular
 šīmātu,jewelry,noun,feminine plural
 unūtu,equipment/tools,noun,masculine plural
 kakkum,weapon,noun,masculine singular
-šēpu,sword,noun,masculine singular
+patru,dagger/sword,noun,masculine singular
 qaštu,bow,noun,feminine singular
 uṣṣu,arrow,noun,masculine singular
 agû,crown,noun,masculine singular
@@ -152,7 +152,7 @@ mâtu,to die,verb,G infinitive
 banû,to build,verb,G infinitive
 epēšu,to do/make,verb,G infinitive
 alāku,to go,verb,G infinitive
-turru,to return,verb,G infinitive
+târu,to return,verb,G infinitive
 kašādu,to reach/arrive,verb,G infinitive
 ṣabātu,to seize/take,verb,G infinitive
 nadānu,to give,verb,G infinitive
@@ -182,7 +182,7 @@ palāḫu,to fear,verb,G infinitive
 kaṣāru,to tie/bind,verb,G infinitive
 paṭāru,to release,verb,G infinitive
 ḫepû,to break,verb,G infinitive
-ṣabāru,to be small,verb,G infinitive
+ṣeḫēru,to be small,verb,G infinitive
 rabû,to be great,verb,G infinitive
 damāqu,to be good,verb,G infinitive
 lemēnu,to be bad,verb,G infinitive
@@ -243,33 +243,33 @@ bīrit,between,preposition,with genitive
 maḫar,before/in front of,preposition,with genitive
 warki,after/behind,preposition,with genitive
 balum,without,preposition,with genitive
-1,ištēn,number,masculine
-1,ištiāt,number,feminine
-2,šinā,number,masculine
-2,šittā,number,feminine
-3,šalāšā,number,masculine
-3,šalāš,number,feminine
-4,erbā,number,masculine
-4,erbet,number,feminine
-5,ḫamšā,number,masculine
-5,ḫamiš,number,feminine
-6,šeššā,number,masculine
-6,šešet,number,feminine
-7,sebā,number,masculine
-7,sebet,number,feminine
-8,samānā,number,masculine
-8,samānat,number,feminine
-9,tišā,number,masculine
-9,tišat,number,feminine
-10,ešer,number,masculine
-10,ešeret,number,feminine
-20,ešrā,number,
-30,šalāšā,number,
-40,erbā,number,
-50,ḫamšā,number,
-60,šūšā,number,
-100,mât,number,
-1000,līm,number,
+ištēn,one (1),number,masculine
+ištiāt,one (1),number,feminine
+šinā,two (2),number,masculine
+šittā,two (2),number,feminine
+šalāšā,three (3),number,masculine
+šalāš,three (3),number,feminine
+erbā,four (4),number,masculine
+erbet,four (4),number,feminine
+ḫamšā,five (5),number,masculine
+ḫamiš,five (5),number,feminine
+šeššā,six (6),number,masculine
+šešet,six (6),number,feminine
+sebā,seven (7),number,masculine
+sebet,seven (7),number,feminine
+samānā,eight (8),number,masculine
+samānat,eight (8),number,feminine
+tišā,nine (9),number,masculine
+tišat,nine (9),number,feminine
+ešer,ten (10),number,masculine
+ešeret,ten (10),number,feminine
+ešrā,twenty (20),number,
+šalāšū,thirty (30),number,
+erbū,forty (40),number,
+ḫamšū,fifty (50),number,
+šūši,sixty (60),number,
+mē'at,one hundred (100),number,
+līmu,one thousand (1000),number,
 ū,and,conjunction,
 lū,or,conjunction,
 šumma,if,conjunction,conditional
@@ -293,3 +293,63 @@ annû,this,demonstrative,masculine singular
 annītu,this,demonstrative,feminine singular
 ullû,that,demonstrative,masculine singular
 ullītu,that,demonstrative,feminine singular
+rīmu,wild bull/aurochs,noun,masculine singular
+nēšu,lion,noun,masculine singular
+pagru,body/corpse,noun,masculine singular
+zumru,body,noun,masculine singular
+ṭēmu,reason/report,noun,masculine singular
+amtu,female slave,noun,feminine singular
+wardu,male slave,noun,masculine singular
+ḫīṭu,sin/error,noun,masculine singular
+arnu,guilt/punishment,noun,masculine singular
+dīnu,judgment/lawsuit,noun,masculine singular
+raggu,evil/wicked,adjective,masculine singular
+kīnu,true/legitimate,adjective,masculine singular
+dannu,strong/mighty,adjective,masculine singular
+enšu,weak,adjective,masculine singular
+mādu,many/much,adjective,masculine singular
+wašābu,to sit/dwell,verb,G infinitive
+izuzzu,to stand,verb,G infinitive
+naṣāru,to guard/protect,verb,G infinitive
+kullumu,to show,verb,D infinitive
+kunnu,to establish/confirm,verb,D infinitive
+šapāru,to send,verb,G infinitive
+šarāqu,to steal,verb,G infinitive
+ḫalāqu,to perish/disappear,verb,G infinitive
+gamāru,to complete/finish,verb,G infinitive
+maḫāru,to receive/face,verb,G infinitive
+nakāru,to be hostile,verb,G infinitive
+šalāmu,to be well/healthy,verb,G infinitive
+magāru,to agree/consent,verb,G infinitive
+emēdu,to impose/lean,verb,G infinitive
+erēbu,to enter,verb,G infinitive
+waṣû,to go out,verb,G infinitive
+maqātu,to fall,verb,G infinitive
+ṭarādu,to send away,verb,G infinitive
+napāḫu,to blow/light fire,verb,G infinitive
+nasāḫu,to tear out,verb,G infinitive
+petû,to open,verb,G infinitive
+edēlu,to shut/lock,verb,G infinitive
+lapātu,to touch,verb,G infinitive
+ṭuppu,tablet,noun,masculine singular
+kanīku,sealed document,noun,masculine singular
+riksu,contract/agreement,noun,masculine singular
+šīmu,price/purchase,noun,masculine singular
+igāru,wall (of building),noun,masculine singular
+sikkatu,peg/nail,noun,feminine singular
+nīqu,offering/sacrifice,noun,masculine singular
+parṣu,rite/office,noun,masculine singular
+kakku,weapon,noun,masculine singular
+ṣēru,back/steppe,noun,masculine singular
+appāru,reed marsh,noun,masculine singular
+kiṣru,knot/wage,noun,masculine singular
+mušītu,night,noun,feminine singular
+ṣētu,heat/summer,noun,feminine singular
+kūṣu,cold/winter,noun,masculine singular
+ebūru,harvest,noun,masculine singular
+biltu,load/tribute,noun,feminine singular
+makūtu,poverty,noun,feminine singular
+šarūtu,kingship,noun,feminine singular
+bēlūtu,lordship,noun,feminine singular
+ilūtu,divinity,noun,feminine singular
+awīlūtu,humanity,noun,feminine singular

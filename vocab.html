@@ -348,6 +348,7 @@
 </head>
 <body>
     <div class="container">
+        <a href="dashboard.html" style="text-decoration: none; color: #3498db; font-size: 0.9em;">← Dashboard</a>
         <h1>𒀭 Akkadian Learning System</h1>
         
         <div class="nav-tabs">
@@ -367,6 +368,11 @@
                     <option value="adjective">Adjectives</option>
                     <option value="pronoun">Pronouns</option>
                     <option value="preposition">Prepositions</option>
+                    <option value="number">Numbers</option>
+                    <option value="conjunction">Conjunctions</option>
+                    <option value="adverb">Adverbs</option>
+                    <option value="demonstrative">Demonstratives</option>
+                    <option value="negative particle">Particles</option>
                 </select>
             </div>
             <div class="vocab-grid" id="vocabGrid"></div>
@@ -419,68 +425,362 @@
     </div>
 
     <script>
-        // CSV Data
+        // CSV Data (355 words from vocab.csv)
         const vocabularyData = `akkadian,english,part_of_speech,usage_note
 šarru,king,noun,masculine singular
 šarratu,queen,noun,feminine singular
+rubû,prince,noun,masculine singular
+rubītu,princess,noun,feminine singular
+bēlu,lord/master,noun,masculine singular
+bēltu,lady/mistress,noun,feminine singular
+awīlu,man/citizen,noun,masculine singular
+sinništu,woman,noun,feminine singular
 māru,son,noun,masculine singular
 mārtu,daughter,noun,feminine singular
+abu,father,noun,masculine singular
+ummu,mother,noun,feminine singular
+aḫu,brother,noun,masculine singular
+aḫātu,sister,noun,feminine singular
+emū,father-in-law,noun,masculine singular
+šību,old man/elder,noun,masculine singular
+ṣeḫru,child/young one,noun,masculine singular
+ṣeḫertu,young girl,noun,feminine singular
 bītu,house,noun,masculine singular
+ēkallum,palace,noun,masculine singular
+bīt ilim,temple,noun,literally house of god
 ālu,city,noun,masculine singular
-ilum,god,noun,masculine singular
-šamû,heaven/sky,noun,masculine singular
-erṣetu,earth,noun,feminine singular
+ūru,city/settlement,noun,masculine singular
+kāru,harbor/port,noun,masculine singular
+sūqu,street/market,noun,masculine singular
+bābu,gate,noun,masculine singular
+dūru,wall,noun,masculine singular
+daltu,door,noun,feminine singular
+šubtum,dwelling,noun,feminine singular
+kirû,garden/orchard,noun,masculine singular
+eqlu,field,noun,masculine singular
+ugāru,meadow,noun,masculine singular
+šadû,mountain,noun,masculine singular
+tâmtu,sea,noun,feminine singular
+nāru,river,noun,masculine singular
 mû,water,noun,masculine plural
+šamû,heaven/sky,noun,masculine singular
+erṣetu,earth/land,noun,feminine singular
+qaqqaru,ground,noun,masculine singular
+abnu,stone,noun,masculine singular
+ēperu,dust/earth,noun,masculine singular
+šāru,wind,noun,masculine singular
+zunnu,rain,noun,masculine singular
 šamšu,sun,noun,common singular
+sīnu,moon,noun,masculine singular
+kakkabum,star,noun,masculine singular
+urpatu,cloud,noun,feminine singular
+berqu,lightning,noun,masculine singular
+rigmu,thunder/noise,noun,masculine singular
+šētu,frost/ice,noun,masculine singular
+ilum,god,noun,masculine singular
+ištaru,goddess,noun,feminine singular - Ishtar
+enlil,Enlil (god),noun,masculine singular - god of wind
+ea,Ea (god),noun,masculine singular - god of water
+marduk,Marduk (god),noun,masculine singular - chief god of Babylon
+šin,Sin (god),noun,masculine singular - moon god
+šamaš,Shamash (god),noun,masculine singular - sun god
+išḫara,Ishara (goddess),noun,feminine singular - love goddess
+nergal,Nergal (god),noun,masculine singular - god of war
 warhu,month,noun,masculine singular
 šattu,year,noun,feminine singular
 ūmu,day,noun,masculine singular
 mūšu,night,noun,masculine singular
-kaspum,silver,noun,masculine singular
-hurāṣu,gold,noun,masculine singular
+šēru,morning,noun,masculine singular
+ṣītu,evening,noun,feminine singular
+muṣû,exit/dawn,noun,masculine singular
+barû,seer/diviner,noun,masculine singular
+šangû,priest,noun,masculine singular
+ēnu,high priest,noun,masculine singular
+šāpiru,scribe,noun,masculine singular
+ummânu,craftsman,noun,masculine singular
+nappāḫu,smith,noun,masculine singular
+kīnātu,female musician,noun,feminine singular
+rē'û,shepherd,noun,masculine singular
+errēšu,farmer,noun,masculine singular
+tamkāru,merchant,noun,masculine singular
+ṭābāḫu,butcher,noun,masculine singular
+šikkaru,beer,noun,masculine singular
+karānu,wine,noun,masculine singular
+aklum,bread,noun,masculine singular
+šamnu,oil,noun,masculine singular
+dispu,honey,noun,masculine singular
+šizbu,milk,noun,masculine singular
 šīru,flesh/meat,noun,masculine singular
+nūnu,fish,noun,masculine singular
+ṣīdu,provisions/food,noun,masculine singular
+immeru,sheep,noun,masculine singular
+alpu,ox/bull,noun,masculine singular
+imīru,donkey,noun,masculine singular
+sisû,horse,noun,masculine singular
+kalbu,dog,noun,masculine singular
+šaḫû,pig,noun,masculine singular
+barbaru,wolf,noun,masculine singular
+labbu,lion,noun,masculine singular
+dābu,bear,noun,masculine singular
+ṣabītu,gazelle,noun,feminine singular
+alpū,cattle,noun,masculine plural
+ṣēnu,flock,noun,masculine singular
+iṣṣūru,bird,noun,masculine singular
+erû,eagle,noun,masculine singular
+summatu,dove,noun,feminine singular
 šēpu,foot,noun,masculine singular
 qātu,hand,noun,feminine singular
 rēšu,head,noun,masculine singular
-līpu,heart,noun,masculine singular
+pūtu,face,noun,masculine singular
+īnu,eye,noun,feminine singular
+uznu,ear,noun,feminine singular
+appu,nose,noun,masculine singular
+šaptu,lip,noun,feminine singular
+šinnu,tooth,noun,masculine singular
+lišānu,tongue,noun,masculine singular
+kišādu,neck,noun,masculine singular
+irtu,chest/breast,noun,feminine singular
+libbu,heart/mind,noun,masculine singular
+kabattu,liver,noun,feminine singular
 napištu,life/soul,noun,feminine singular
-šīmtu,fate,noun,feminine singular
-balāṭu,to live,verb,infinitive
-mâtu,to die,verb,infinitive
-alāku,to go,verb,infinitive
-ṣabātu,to seize,verb,infinitive
-nadānu,to give,verb,infinitive
-leqû,to take,verb,infinitive
-šakānu,to place,verb,infinitive
-epēšu,to do/make,verb,infinitive
-qabû,to say,verb,infinitive
-šemû,to hear,verb,infinitive
-amāru,to see,verb,infinitive
-idû,to know,verb,infinitive
-râmu,to love,verb,infinitive
-šūlû,to cause to go up,verb,causative
-šūrubu,to cause to enter,verb,causative
+šīru,flesh,noun,masculine singular
+eṣemtu,bone,noun,feminine singular
+dāmu,blood,noun,masculine singular
+kaspum,silver,noun,masculine singular
+hurāṣu,gold,noun,masculine singular
+siparru,bronze,noun,masculine singular
+parzillu,iron,noun,masculine singular
+abnū,stones,noun,masculine plural
+šūtēšubu,precious stones,noun,masculine plural
+lubuštu,clothing,noun,feminine singular
+ṣubātu,garment,noun,masculine singular
+šīmātu,jewelry,noun,feminine plural
+unūtu,equipment/tools,noun,masculine plural
+kakkum,weapon,noun,masculine singular
+patru,dagger/sword,noun,masculine singular
+qaštu,bow,noun,feminine singular
+uṣṣu,arrow,noun,masculine singular
+agû,crown,noun,masculine singular
+kussû,throne,noun,masculine singular
+markasu,chariot,noun,masculine singular
+elippu,ship,noun,feminine singular
+ḫarrānu,road/journey,noun,masculine singular
+girru,expedition,noun,masculine singular
+šīmtu,fate/destiny,noun,feminine singular
+šūlûtu,prayer,noun,feminine singular
+tēšûtu,confusion,noun,feminine singular
+rāmu,love,noun,masculine singular
+gamālu,favor/mercy,noun,masculine singular
+ugātu,anger,noun,feminine singular
+palāḫu,fear,noun,masculine singular
+ḫadû,joy,noun,masculine singular
+tanūgu,lamentation,noun,masculine singular
+balāṭu,to live,verb,G infinitive
+mâtu,to die,verb,G infinitive
+banû,to build,verb,G infinitive
+epēšu,to do/make,verb,G infinitive
+alāku,to go,verb,G infinitive
+târu,to return,verb,G infinitive
+kašādu,to reach/arrive,verb,G infinitive
+ṣabātu,to seize/take,verb,G infinitive
+nadānu,to give,verb,G infinitive
+leqû,to take/receive,verb,G infinitive
+šakānu,to place/put,verb,G infinitive
+našû,to lift/carry,verb,G infinitive
+tarû,to lead/guide,verb,G infinitive
+šūṣû,to bring out,verb,Š infinitive
+šūrubu,to bring in,verb,Š infinitive
+šūlû,to raise up,verb,Š infinitive
+qabû,to say/speak,verb,G infinitive
+šemû,to hear,verb,G infinitive
+amāru,to see,verb,G infinitive
+idû,to know,verb,G infinitive
+ḫasāsu,to think/remember,verb,G infinitive
+râmu,to love,verb,G infinitive
+zêru,to hate,verb,G infinitive
+ragāmu,to shout,verb,G infinitive
+bakû,to weep,verb,G infinitive
+ṣaḫātu,to laugh,verb,G infinitive
+akālu,to eat,verb,G infinitive
+šatû,to drink,verb,G infinitive
+ṣalālu,to sleep,verb,G infinitive
+qâpu,to trust,verb,G infinitive
+palāḫu,to fear,verb,G infinitive
+šūquru,to honor,verb,Š infinitive
+kaṣāru,to tie/bind,verb,G infinitive
+paṭāru,to release,verb,G infinitive
+ḫepû,to break,verb,G infinitive
+ṣeḫēru,to be small,verb,G infinitive
+rabû,to be great,verb,G infinitive
+damāqu,to be good,verb,G infinitive
+lemēnu,to be bad,verb,G infinitive
+elû,to go up,verb,G infinitive
+warādu,to go down,verb,G infinitive
+šūtubu,to dwell,verb,Š infinitive
 damqu,good,adjective,masculine singular
-lemnu,bad,adjective,masculine singular
-rabû,great,adjective,masculine singular
-ṣehru,small,adjective,masculine singular
-elû,high,adjective,masculine singular
+damiqtu,good,adjective,feminine singular
+lemnu,bad/evil,adjective,masculine singular
+lemnetu,bad/evil,adjective,feminine singular
+rabû,great/big,adjective,masculine singular
+rabītu,great/big,adjective,feminine singular
+ṣeḫru,small/young,adjective,masculine singular
+ṣeḫertu,small/young,adjective,feminine singular
+šīru,exalted,adjective,masculine singular
 šaplû,low,adjective,masculine singular
+elû,high,adjective,masculine singular
+ṣalmu,dark/black,adjective,masculine singular
+peṣû,white,adjective,masculine singular
+warqu,green/yellow,adjective,masculine singular
+sāmu,red,adjective,masculine singular
+rapšu,wide,adjective,masculine singular
+arku,long,adjective,masculine singular
+kurû,short,adjective,masculine singular
+labīru,old,adjective,masculine singular
+eššu,new,adjective,masculine singular
+marṣu,sick,adjective,masculine singular
+šalmu,healthy,adjective,masculine singular
 anāku,I,pronoun,1st person singular
 atta,you,pronoun,2nd person masculine singular
 atti,you,pronoun,2nd person feminine singular
 šū,he,pronoun,3rd person masculine singular
 šī,she,pronoun,3rd person feminine singular
 nīnu,we,pronoun,1st person plural
-attunu,you,pronoun,2nd person plural
+attunu,you,pronoun,2nd person masculine plural
+attina,you,pronoun,2nd person feminine plural
 šunu,they,pronoun,3rd person masculine plural
 šina,they,pronoun,3rd person feminine plural
+yâši,me,pronoun,1st person oblique
+yâti,me,pronoun,1st person accusative
+šuāti,him,pronoun,3rd person masculine accusative
+šuāši,her,pronoun,3rd person feminine accusative
+mannu,who?,pronoun,interrogative
+mīnu,what?,pronoun,interrogative
+ayyu,which?,pronoun,interrogative
 ina,in/at/on,preposition,
 ana,to/for,preposition,
 ištu,from,preposition,
+ultu,from/since,preposition,
+adi,until/as far as,preposition,
 eli,upon/over,preposition,
+šapla,under,preposition,
 itti,with,preposition,
-libbu,inside,preposition,with genitive`;
+kīma,like/as,preposition,
+aššum,because of,preposition,
+libbu,inside,preposition,with genitive
+bīrit,between,preposition,with genitive
+maḫar,before/in front of,preposition,with genitive
+warki,after/behind,preposition,with genitive
+balum,without,preposition,with genitive
+ištēn,one (1),number,masculine
+ištiāt,one (1),number,feminine
+šinā,two (2),number,masculine
+šittā,two (2),number,feminine
+šalāšā,three (3),number,masculine
+šalāš,three (3),number,feminine
+erbā,four (4),number,masculine
+erbet,four (4),number,feminine
+ḫamšā,five (5),number,masculine
+ḫamiš,five (5),number,feminine
+šeššā,six (6),number,masculine
+šešet,six (6),number,feminine
+sebā,seven (7),number,masculine
+sebet,seven (7),number,feminine
+samānā,eight (8),number,masculine
+samānat,eight (8),number,feminine
+tišā,nine (9),number,masculine
+tišat,nine (9),number,feminine
+ešer,ten (10),number,masculine
+ešeret,ten (10),number,feminine
+ešrā,twenty (20),number,
+šalāšū,thirty (30),number,
+erbū,forty (40),number,
+ḫamšū,fifty (50),number,
+šūši,sixty (60),number,
+mē'at,one hundred (100),number,
+līmu,one thousand (1000),number,
+ū,and,conjunction,
+lū,or,conjunction,
+šumma,if,conjunction,conditional
+kī,when/that,conjunction,
+aššu,because,conjunction,
+ūlu,or,conjunction,alternative
+lā,not,negative particle,
+ul,not,negative particle,with present/preterite
+ay,not,negative particle,with precative
+ammīni,why?,adverb,interrogative
+ayyāka,where?,adverb,interrogative
+matay,when?,adverb,interrogative
+kīam,thus/so,adverb,
+anumma,now/behold,adverb,
+ūmišam,daily,adverb,
+šūlītu,formerly,adverb,
+arki,afterwards,adverb,
+ayyānu,where?,adverb,interrogative directional
+ašar,where,adverb,relative
+annû,this,demonstrative,masculine singular
+annītu,this,demonstrative,feminine singular
+ullû,that,demonstrative,masculine singular
+ullītu,that,demonstrative,feminine singular
+rīmu,wild bull/aurochs,noun,masculine singular
+nēšu,lion,noun,masculine singular
+pagru,body/corpse,noun,masculine singular
+zumru,body,noun,masculine singular
+ṭēmu,reason/report,noun,masculine singular
+amtu,female slave,noun,feminine singular
+wardu,male slave,noun,masculine singular
+ḫīṭu,sin/error,noun,masculine singular
+arnu,guilt/punishment,noun,masculine singular
+dīnu,judgment/lawsuit,noun,masculine singular
+raggu,evil/wicked,adjective,masculine singular
+kīnu,true/legitimate,adjective,masculine singular
+dannu,strong/mighty,adjective,masculine singular
+enšu,weak,adjective,masculine singular
+mādu,many/much,adjective,masculine singular
+wašābu,to sit/dwell,verb,G infinitive
+izuzzu,to stand,verb,G infinitive
+naṣāru,to guard/protect,verb,G infinitive
+kullumu,to show,verb,D infinitive
+kunnu,to establish/confirm,verb,D infinitive
+šapāru,to send,verb,G infinitive
+šarāqu,to steal,verb,G infinitive
+ḫalāqu,to perish/disappear,verb,G infinitive
+gamāru,to complete/finish,verb,G infinitive
+maḫāru,to receive/face,verb,G infinitive
+nakāru,to be hostile,verb,G infinitive
+šalāmu,to be well/healthy,verb,G infinitive
+magāru,to agree/consent,verb,G infinitive
+emēdu,to impose/lean,verb,G infinitive
+erēbu,to enter,verb,G infinitive
+waṣû,to go out,verb,G infinitive
+maqātu,to fall,verb,G infinitive
+ṭarādu,to send away,verb,G infinitive
+napāḫu,to blow/light fire,verb,G infinitive
+nasāḫu,to tear out,verb,G infinitive
+petû,to open,verb,G infinitive
+edēlu,to shut/lock,verb,G infinitive
+lapātu,to touch,verb,G infinitive
+ṭuppu,tablet,noun,masculine singular
+kanīku,sealed document,noun,masculine singular
+riksu,contract/agreement,noun,masculine singular
+šīmu,price/purchase,noun,masculine singular
+igāru,wall (of building),noun,masculine singular
+sikkatu,peg/nail,noun,feminine singular
+nīqu,offering/sacrifice,noun,masculine singular
+parṣu,rite/office,noun,masculine singular
+kakku,weapon,noun,masculine singular
+ṣēru,back/steppe,noun,masculine singular
+appāru,reed marsh,noun,masculine singular
+kiṣru,knot/wage,noun,masculine singular
+mušītu,night,noun,feminine singular
+ṣētu,heat/summer,noun,feminine singular
+kūṣu,cold/winter,noun,masculine singular
+ebūru,harvest,noun,masculine singular
+biltu,load/tribute,noun,feminine singular
+makūtu,poverty,noun,feminine singular
+šarūtu,kingship,noun,feminine singular
+bēlūtu,lordship,noun,feminine singular
+ilūtu,divinity,noun,feminine singular
+awīlūtu,humanity,noun,feminine singular`;
 
         const exerciseData = `type,question,option1,option2,option3,option4,correct,explanation
 translation,What is the Akkadian word for 'king'?,šarru,māru,bītu,ilum,1,šarru means king in Akkadian

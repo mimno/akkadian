@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akkadian Flashcards - Spaced Repetition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-value.due { color: #e74c3c; }
+        .stat-value.learning { color: #f39c12; }
+        .stat-value.review { color: #27ae60; }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 220px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard.bounce {
+            animation: bounceIn 0.3s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.02);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .card-back {
+            background: white;
+            transform: rotateY(180deg);
+            border: 3px solid #3498db;
+        }
+
+        .card-word {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .card-pos {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }
+
+        .card-back .card-pos {
+            background: #3498db;
+            color: white;
+        }
+
+        .card-translation {
+            font-size: 1.6em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .card-note {
+            font-style: italic;
+            color: #7f8c8d;
+            font-size: 1em;
+        }
+
+        .card-hint {
+            margin-top: 20px;
+            font-size: 0.95em;
+            opacity: 0.8;
+        }
+
+        .rating-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .rating-btn {
+            padding: 12px 8px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .rating-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .rating-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .rating-btn.again {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .rating-btn.hard {
+            background: #f39c12;
+            color: white;
+        }
+
+        .rating-btn.good {
+            background: #27ae60;
+            color: white;
+        }
+
+        .rating-btn.easy {
+            background: #3498db;
+            color: white;
+        }
+
+        .rating-interval {
+            font-size: 0.75em;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .progress-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .progress-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .progress-bar-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 25px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .progress-segment {
+            height: 100%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+            min-width: 0;
+        }
+
+        .progress-new { background: #95a5a6; }
+        .progress-learning { background: #f39c12; }
+        .progress-review { background: #27ae60; }
+
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-select {
+            padding: 10px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            margin-bottom: 20px;
+        }
+
+        .session-complete {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .session-complete h2 {
+            color: #27ae60;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .session-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .session-stat {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .session-stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .session-stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .keyboard-hints {
+            text-align: center;
+            color: #95a5a6;
+            font-size: 0.85em;
+            margin-top: 15px;
+        }
+
+        .keyboard-hints kbd {
+            background: #e9ecef;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 0 3px;
+        }
+
+        .settings-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 25px;
+            display: none;
+        }
+
+        .settings-panel.visible {
+            display: block;
+        }
+
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .settings-row:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .card-word {
+                font-size: 1.6em;
+            }
+
+            .card-translation {
+                font-size: 1.3em;
+            }
+
+            .flashcard {
+                height: 200px;
+            }
+
+            .rating-buttons {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px;
+            }
+
+            .stats-bar {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="dashboard.html" style="text-decoration: none; color: #3498db; font-size: 0.9em;">← Dashboard</a>
+        <h1>𒀭 Akkadian Flashcards</h1>
+        <p class="subtitle">Spaced Repetition Learning System</p>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value due" id="dueCount">0</div>
+                <div class="stat-label">Due Today</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value learning" id="learningCount">0</div>
+                <div class="stat-label">Learning</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value review" id="reviewCount">0</div>
+                <div class="stat-label">Mastered</div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <select class="filter-select" id="posFilter">
+                <option value="">All Parts of Speech</option>
+                <option value="noun">Nouns</option>
+                <option value="verb">Verbs</option>
+                <option value="adjective">Adjectives</option>
+                <option value="pronoun">Pronouns</option>
+                <option value="preposition">Prepositions</option>
+                <option value="number">Numbers</option>
+                <option value="conjunction">Conjunctions</option>
+                <option value="adverb">Adverbs</option>
+            </select>
+            <select class="filter-select" id="modeFilter">
+                <option value="due">Due Cards</option>
+                <option value="new">New Cards Only</option>
+                <option value="review">Review Only</option>
+                <option value="all">All Cards</option>
+            </select>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-title">Overall Progress</div>
+            <div class="progress-bar-container">
+                <div class="progress-segment progress-new" id="progressNew"></div>
+                <div class="progress-segment progress-learning" id="progressLearning"></div>
+                <div class="progress-segment progress-review" id="progressReview"></div>
+            </div>
+        </div>
+
+        <div id="studyArea">
+            <!-- Card or empty state will be inserted here -->
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-secondary" id="settingsBtn">⚙ Settings</button>
+            <button class="btn btn-danger" id="resetBtn">Reset Progress</button>
+        </div>
+
+        <div class="keyboard-hints">
+            <kbd>Space</kbd> Flip card &nbsp;|&nbsp;
+            <kbd>1</kbd> Again &nbsp;
+            <kbd>2</kbd> Hard &nbsp;
+            <kbd>3</kbd> Good &nbsp;
+            <kbd>4</kbd> Easy
+        </div>
+
+        <div class="settings-panel" id="settingsPanel">
+            <div class="progress-title">Settings</div>
+            <div class="settings-row">
+                <span>New cards per day</span>
+                <select id="newCardsLimit" class="filter-select">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20" selected>20</option>
+                    <option value="50">50</option>
+                    <option value="999">Unlimited</option>
+                </select>
+            </div>
+            <div class="settings-row">
+                <span>Show Akkadian first</span>
+                <select id="cardDirection" class="filter-select">
+                    <option value="akkadian">Akkadian → English</option>
+                    <option value="english">English → Akkadian</option>
+                    <option value="random">Random</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Vocabulary data (355 words from vocab.csv)
+        const vocabularyCSV = `akkadian,english,part_of_speech,usage_note
+šarru,king,noun,masculine singular
+šarratu,queen,noun,feminine singular
+rubû,prince,noun,masculine singular
+rubītu,princess,noun,feminine singular
+bēlu,lord/master,noun,masculine singular
+bēltu,lady/mistress,noun,feminine singular
+awīlu,man/citizen,noun,masculine singular
+sinništu,woman,noun,feminine singular
+māru,son,noun,masculine singular
+mārtu,daughter,noun,feminine singular
+abu,father,noun,masculine singular
+ummu,mother,noun,feminine singular
+aḫu,brother,noun,masculine singular
+aḫātu,sister,noun,feminine singular
+emū,father-in-law,noun,masculine singular
+šību,old man/elder,noun,masculine singular
+ṣeḫru,child/young one,noun,masculine singular
+ṣeḫertu,young girl,noun,feminine singular
+bītu,house,noun,masculine singular
+ēkallum,palace,noun,masculine singular
+bīt ilim,temple,noun,literally house of god
+ālu,city,noun,masculine singular
+ūru,city/settlement,noun,masculine singular
+kāru,harbor/port,noun,masculine singular
+sūqu,street/market,noun,masculine singular
+bābu,gate,noun,masculine singular
+dūru,wall,noun,masculine singular
+daltu,door,noun,feminine singular
+šubtum,dwelling,noun,feminine singular
+kirû,garden/orchard,noun,masculine singular
+eqlu,field,noun,masculine singular
+ugāru,meadow,noun,masculine singular
+šadû,mountain,noun,masculine singular
+tâmtu,sea,noun,feminine singular
+nāru,river,noun,masculine singular
+mû,water,noun,masculine plural
+šamû,heaven/sky,noun,masculine singular
+erṣetu,earth/land,noun,feminine singular
+qaqqaru,ground,noun,masculine singular
+abnu,stone,noun,masculine singular
+ēperu,dust/earth,noun,masculine singular
+šāru,wind,noun,masculine singular
+zunnu,rain,noun,masculine singular
+šamšu,sun,noun,common singular
+sīnu,moon,noun,masculine singular
+kakkabum,star,noun,masculine singular
+urpatu,cloud,noun,feminine singular
+berqu,lightning,noun,masculine singular
+rigmu,thunder/noise,noun,masculine singular
+šētu,frost/ice,noun,masculine singular
+ilum,god,noun,masculine singular
+ištaru,goddess,noun,feminine singular - Ishtar
+enlil,Enlil (god),noun,masculine singular - god of wind
+ea,Ea (god),noun,masculine singular - god of water
+marduk,Marduk (god),noun,masculine singular - chief god of Babylon
+šin,Sin (god),noun,masculine singular - moon god
+šamaš,Shamash (god),noun,masculine singular - sun god
+išḫara,Ishara (goddess),noun,feminine singular - love goddess
+nergal,Nergal (god),noun,masculine singular - god of war
+warhu,month,noun,masculine singular
+šattu,year,noun,feminine singular
+ūmu,day,noun,masculine singular
+mūšu,night,noun,masculine singular
+šēru,morning,noun,masculine singular
+ṣītu,evening,noun,feminine singular
+muṣû,exit/dawn,noun,masculine singular
+barû,seer/diviner,noun,masculine singular
+šangû,priest,noun,masculine singular
+ēnu,high priest,noun,masculine singular
+šāpiru,scribe,noun,masculine singular
+ummânu,craftsman,noun,masculine singular
+nappāḫu,smith,noun,masculine singular
+kīnātu,female musician,noun,feminine singular
+rē'û,shepherd,noun,masculine singular
+errēšu,farmer,noun,masculine singular
+tamkāru,merchant,noun,masculine singular
+ṭābāḫu,butcher,noun,masculine singular
+šikkaru,beer,noun,masculine singular
+karānu,wine,noun,masculine singular
+aklum,bread,noun,masculine singular
+šamnu,oil,noun,masculine singular
+dispu,honey,noun,masculine singular
+šizbu,milk,noun,masculine singular
+šīru,flesh/meat,noun,masculine singular
+nūnu,fish,noun,masculine singular
+ṣīdu,provisions/food,noun,masculine singular
+immeru,sheep,noun,masculine singular
+alpu,ox/bull,noun,masculine singular
+imīru,donkey,noun,masculine singular
+sisû,horse,noun,masculine singular
+kalbu,dog,noun,masculine singular
+šaḫû,pig,noun,masculine singular
+barbaru,wolf,noun,masculine singular
+labbu,lion,noun,masculine singular
+dābu,bear,noun,masculine singular
+ṣabītu,gazelle,noun,feminine singular
+alpū,cattle,noun,masculine plural
+ṣēnu,flock,noun,masculine singular
+iṣṣūru,bird,noun,masculine singular
+erû,eagle,noun,masculine singular
+summatu,dove,noun,feminine singular
+šēpu,foot,noun,masculine singular
+qātu,hand,noun,feminine singular
+rēšu,head,noun,masculine singular
+pūtu,face,noun,masculine singular
+īnu,eye,noun,feminine singular
+uznu,ear,noun,feminine singular
+appu,nose,noun,masculine singular
+šaptu,lip,noun,feminine singular
+šinnu,tooth,noun,masculine singular
+lišānu,tongue,noun,masculine singular
+kišādu,neck,noun,masculine singular
+irtu,chest/breast,noun,feminine singular
+libbu,heart/mind,noun,masculine singular
+kabattu,liver,noun,feminine singular
+napištu,life/soul,noun,feminine singular
+šīru,flesh,noun,masculine singular
+eṣemtu,bone,noun,feminine singular
+dāmu,blood,noun,masculine singular
+kaspum,silver,noun,masculine singular
+hurāṣu,gold,noun,masculine singular
+siparru,bronze,noun,masculine singular
+parzillu,iron,noun,masculine singular
+abnū,stones,noun,masculine plural
+šūtēšubu,precious stones,noun,masculine plural
+lubuštu,clothing,noun,feminine singular
+ṣubātu,garment,noun,masculine singular
+šīmātu,jewelry,noun,feminine plural
+unūtu,equipment/tools,noun,masculine plural
+kakkum,weapon,noun,masculine singular
+patru,dagger/sword,noun,masculine singular
+qaštu,bow,noun,feminine singular
+uṣṣu,arrow,noun,masculine singular
+agû,crown,noun,masculine singular
+kussû,throne,noun,masculine singular
+markasu,chariot,noun,masculine singular
+elippu,ship,noun,feminine singular
+ḫarrānu,road/journey,noun,masculine singular
+girru,expedition,noun,masculine singular
+šīmtu,fate/destiny,noun,feminine singular
+šūlûtu,prayer,noun,feminine singular
+tēšûtu,confusion,noun,feminine singular
+rāmu,love,noun,masculine singular
+gamālu,favor/mercy,noun,masculine singular
+ugātu,anger,noun,feminine singular
+palāḫu,fear,noun,masculine singular
+ḫadû,joy,noun,masculine singular
+tanūgu,lamentation,noun,masculine singular
+balāṭu,to live,verb,G infinitive
+mâtu,to die,verb,G infinitive
+banû,to build,verb,G infinitive
+epēšu,to do/make,verb,G infinitive
+alāku,to go,verb,G infinitive
+târu,to return,verb,G infinitive
+kašādu,to reach/arrive,verb,G infinitive
+ṣabātu,to seize/take,verb,G infinitive
+nadānu,to give,verb,G infinitive
+leqû,to take/receive,verb,G infinitive
+šakānu,to place/put,verb,G infinitive
+našû,to lift/carry,verb,G infinitive
+tarû,to lead/guide,verb,G infinitive
+šūṣû,to bring out,verb,Š infinitive
+šūrubu,to bring in,verb,Š infinitive
+šūlû,to raise up,verb,Š infinitive
+qabû,to say/speak,verb,G infinitive
+šemû,to hear,verb,G infinitive
+amāru,to see,verb,G infinitive
+idû,to know,verb,G infinitive
+ḫasāsu,to think/remember,verb,G infinitive
+râmu,to love,verb,G infinitive
+zêru,to hate,verb,G infinitive
+ragāmu,to shout,verb,G infinitive
+bakû,to weep,verb,G infinitive
+ṣaḫātu,to laugh,verb,G infinitive
+akālu,to eat,verb,G infinitive
+šatû,to drink,verb,G infinitive
+ṣalālu,to sleep,verb,G infinitive
+qâpu,to trust,verb,G infinitive
+palāḫu,to fear,verb,G infinitive
+šūquru,to honor,verb,Š infinitive
+kaṣāru,to tie/bind,verb,G infinitive
+paṭāru,to release,verb,G infinitive
+ḫepû,to break,verb,G infinitive
+ṣeḫēru,to be small,verb,G infinitive
+rabû,to be great,verb,G infinitive
+damāqu,to be good,verb,G infinitive
+lemēnu,to be bad,verb,G infinitive
+elû,to go up,verb,G infinitive
+warādu,to go down,verb,G infinitive
+šūtubu,to dwell,verb,Š infinitive
+damqu,good,adjective,masculine singular
+damiqtu,good,adjective,feminine singular
+lemnu,bad/evil,adjective,masculine singular
+lemnetu,bad/evil,adjective,feminine singular
+rabû,great/big,adjective,masculine singular
+rabītu,great/big,adjective,feminine singular
+ṣeḫru,small/young,adjective,masculine singular
+ṣeḫertu,small/young,adjective,feminine singular
+šīru,exalted,adjective,masculine singular
+šaplû,low,adjective,masculine singular
+elû,high,adjective,masculine singular
+ṣalmu,dark/black,adjective,masculine singular
+peṣû,white,adjective,masculine singular
+warqu,green/yellow,adjective,masculine singular
+sāmu,red,adjective,masculine singular
+rapšu,wide,adjective,masculine singular
+arku,long,adjective,masculine singular
+kurû,short,adjective,masculine singular
+labīru,old,adjective,masculine singular
+eššu,new,adjective,masculine singular
+marṣu,sick,adjective,masculine singular
+šalmu,healthy,adjective,masculine singular
+anāku,I,pronoun,1st person singular
+atta,you,pronoun,2nd person masculine singular
+atti,you,pronoun,2nd person feminine singular
+šū,he,pronoun,3rd person masculine singular
+šī,she,pronoun,3rd person feminine singular
+nīnu,we,pronoun,1st person plural
+attunu,you,pronoun,2nd person masculine plural
+attina,you,pronoun,2nd person feminine plural
+šunu,they,pronoun,3rd person masculine plural
+šina,they,pronoun,3rd person feminine plural
+yâši,me,pronoun,1st person oblique
+yâti,me,pronoun,1st person accusative
+šuāti,him,pronoun,3rd person masculine accusative
+šuāši,her,pronoun,3rd person feminine accusative
+mannu,who?,pronoun,interrogative
+mīnu,what?,pronoun,interrogative
+ayyu,which?,pronoun,interrogative
+ina,in/at/on,preposition,
+ana,to/for,preposition,
+ištu,from,preposition,
+ultu,from/since,preposition,
+adi,until/as far as,preposition,
+eli,upon/over,preposition,
+šapla,under,preposition,
+itti,with,preposition,
+kīma,like/as,preposition,
+aššum,because of,preposition,
+libbu,inside,preposition,with genitive
+bīrit,between,preposition,with genitive
+maḫar,before/in front of,preposition,with genitive
+warki,after/behind,preposition,with genitive
+balum,without,preposition,with genitive
+ištēn,one (1),number,masculine
+ištiāt,one (1),number,feminine
+šinā,two (2),number,masculine
+šittā,two (2),number,feminine
+šalāšā,three (3),number,masculine
+šalāš,three (3),number,feminine
+erbā,four (4),number,masculine
+erbet,four (4),number,feminine
+ḫamšā,five (5),number,masculine
+ḫamiš,five (5),number,feminine
+šeššā,six (6),number,masculine
+šešet,six (6),number,feminine
+sebā,seven (7),number,masculine
+sebet,seven (7),number,feminine
+samānā,eight (8),number,masculine
+samānat,eight (8),number,feminine
+tišā,nine (9),number,masculine
+tišat,nine (9),number,feminine
+ešer,ten (10),number,masculine
+ešeret,ten (10),number,feminine
+ešrā,twenty (20),number,
+šalāšū,thirty (30),number,
+erbū,forty (40),number,
+ḫamšū,fifty (50),number,
+šūši,sixty (60),number,
+mē'at,one hundred (100),number,
+līmu,one thousand (1000),number,
+ū,and,conjunction,
+lū,or,conjunction,
+šumma,if,conjunction,conditional
+kī,when/that,conjunction,
+aššu,because,conjunction,
+ūlu,or,conjunction,alternative
+lā,not,negative particle,
+ul,not,negative particle,with present/preterite
+ay,not,negative particle,with precative
+ammīni,why?,adverb,interrogative
+ayyāka,where?,adverb,interrogative
+matay,when?,adverb,interrogative
+kīam,thus/so,adverb,
+anumma,now/behold,adverb,
+ūmišam,daily,adverb,
+šūlītu,formerly,adverb,
+arki,afterwards,adverb,
+ayyānu,where?,adverb,interrogative directional
+ašar,where,adverb,relative
+annû,this,demonstrative,masculine singular
+annītu,this,demonstrative,feminine singular
+ullû,that,demonstrative,masculine singular
+ullītu,that,demonstrative,feminine singular
+rīmu,wild bull/aurochs,noun,masculine singular
+nēšu,lion,noun,masculine singular
+pagru,body/corpse,noun,masculine singular
+zumru,body,noun,masculine singular
+ṭēmu,reason/report,noun,masculine singular
+amtu,female slave,noun,feminine singular
+wardu,male slave,noun,masculine singular
+ḫīṭu,sin/error,noun,masculine singular
+arnu,guilt/punishment,noun,masculine singular
+dīnu,judgment/lawsuit,noun,masculine singular
+raggu,evil/wicked,adjective,masculine singular
+kīnu,true/legitimate,adjective,masculine singular
+dannu,strong/mighty,adjective,masculine singular
+enšu,weak,adjective,masculine singular
+mādu,many/much,adjective,masculine singular
+wašābu,to sit/dwell,verb,G infinitive
+izuzzu,to stand,verb,G infinitive
+naṣāru,to guard/protect,verb,G infinitive
+kullumu,to show,verb,D infinitive
+kunnu,to establish/confirm,verb,D infinitive
+šapāru,to send,verb,G infinitive
+šarāqu,to steal,verb,G infinitive
+ḫalāqu,to perish/disappear,verb,G infinitive
+gamāru,to complete/finish,verb,G infinitive
+maḫāru,to receive/face,verb,G infinitive
+nakāru,to be hostile,verb,G infinitive
+šalāmu,to be well/healthy,verb,G infinitive
+magāru,to agree/consent,verb,G infinitive
+emēdu,to impose/lean,verb,G infinitive
+erēbu,to enter,verb,G infinitive
+waṣû,to go out,verb,G infinitive
+maqātu,to fall,verb,G infinitive
+ṭarādu,to send away,verb,G infinitive
+napāḫu,to blow/light fire,verb,G infinitive
+nasāḫu,to tear out,verb,G infinitive
+petû,to open,verb,G infinitive
+edēlu,to shut/lock,verb,G infinitive
+lapātu,to touch,verb,G infinitive
+ṭuppu,tablet,noun,masculine singular
+kanīku,sealed document,noun,masculine singular
+riksu,contract/agreement,noun,masculine singular
+šīmu,price/purchase,noun,masculine singular
+igāru,wall (of building),noun,masculine singular
+sikkatu,peg/nail,noun,feminine singular
+nīqu,offering/sacrifice,noun,masculine singular
+parṣu,rite/office,noun,masculine singular
+kakku,weapon,noun,masculine singular
+ṣēru,back/steppe,noun,masculine singular
+appāru,reed marsh,noun,masculine singular
+kiṣru,knot/wage,noun,masculine singular
+mušītu,night,noun,feminine singular
+ṣētu,heat/summer,noun,feminine singular
+kūṣu,cold/winter,noun,masculine singular
+ebūru,harvest,noun,masculine singular
+biltu,load/tribute,noun,feminine singular
+makūtu,poverty,noun,feminine singular
+šarūtu,kingship,noun,feminine singular
+bēlūtu,lordship,noun,feminine singular
+ilūtu,divinity,noun,feminine singular
+awīlūtu,humanity,noun,feminine singular`;
+
+        // SM-2 Spaced Repetition Algorithm Constants
+        const SM2 = {
+            INITIAL_EASINESS: 2.5,
+            MIN_EASINESS: 1.3,
+            INTERVALS: {
+                AGAIN: 1,      // 1 minute
+                HARD: 6,       // 6 minutes
+                GOOD: 10,      // 10 minutes (for new cards)
+                EASY: 4 * 24 * 60  // 4 days in minutes
+            }
+        };
+
+        // Application State
+        let vocabulary = [];
+        let cardProgress = {}; // Stored in localStorage
+        let currentCard = null;
+        let isFlipped = false;
+        let sessionStats = { reviewed: 0, correct: 0, again: 0 };
+        let settings = {
+            newCardsLimit: 20,
+            cardDirection: 'akkadian'
+        };
+        let todayNewCards = 0;
+        let lastStudyDate = null;
+
+        // Initialize application
+        function init() {
+            loadVocabulary();
+            loadProgress();
+            loadSettings();
+            setupEventListeners();
+            updateUI();
+            showNextCard();
+        }
+
+        // Parse CSV data
+        function loadVocabulary() {
+            const lines = vocabularyCSV.trim().split('\n');
+            const headers = lines[0].split(',');
+
+            vocabulary = lines.slice(1).map((line, index) => {
+                // Handle commas in fields by being careful with splits
+                const values = line.split(',');
+                return {
+                    id: index,
+                    akkadian: values[0] || '',
+                    english: values[1] || '',
+                    part_of_speech: values[2] || '',
+                    usage_note: values.slice(3).join(',') || ''
+                };
+            }).filter(w => w.akkadian && w.english);
+        }
+
+        // Load progress from localStorage
+        function loadProgress() {
+            const saved = localStorage.getItem('akkadian_flashcard_progress');
+            if (saved) {
+                const data = JSON.parse(saved);
+                cardProgress = data.progress || {};
+                lastStudyDate = data.lastStudyDate;
+                todayNewCards = data.todayNewCards || 0;
+
+                // Reset new cards counter if it's a new day
+                const today = new Date().toDateString();
+                if (lastStudyDate !== today) {
+                    todayNewCards = 0;
+                    lastStudyDate = today;
+                }
+            }
+        }
+
+        // Save progress to localStorage
+        function saveProgress() {
+            const data = {
+                progress: cardProgress,
+                lastStudyDate: new Date().toDateString(),
+                todayNewCards: todayNewCards
+            };
+            localStorage.setItem('akkadian_flashcard_progress', JSON.stringify(data));
+        }
+
+        // Load settings
+        function loadSettings() {
+            const saved = localStorage.getItem('akkadian_flashcard_settings');
+            if (saved) {
+                settings = { ...settings, ...JSON.parse(saved) };
+            }
+            document.getElementById('newCardsLimit').value = settings.newCardsLimit;
+            document.getElementById('cardDirection').value = settings.cardDirection;
+        }
+
+        // Save settings
+        function saveSettings() {
+            settings.newCardsLimit = parseInt(document.getElementById('newCardsLimit').value);
+            settings.cardDirection = document.getElementById('cardDirection').value;
+            localStorage.setItem('akkadian_flashcard_settings', JSON.stringify(settings));
+        }
+
+        // Get card state
+        function getCardState(cardId) {
+            if (!cardProgress[cardId]) {
+                return {
+                    easiness: SM2.INITIAL_EASINESS,
+                    interval: 0,
+                    repetitions: 0,
+                    dueDate: 0,
+                    state: 'new' // new, learning, review
+                };
+            }
+            return cardProgress[cardId];
+        }
+
+        // Check if card is due
+        function isCardDue(cardId) {
+            const state = getCardState(cardId);
+            if (state.state === 'new') return true;
+            return Date.now() >= state.dueDate;
+        }
+
+        // Get filtered vocabulary
+        function getFilteredVocabulary() {
+            const posFilter = document.getElementById('posFilter').value;
+            const modeFilter = document.getElementById('modeFilter').value;
+
+            return vocabulary.filter(word => {
+                // Part of speech filter
+                if (posFilter && word.part_of_speech !== posFilter) {
+                    return false;
+                }
+
+                const state = getCardState(word.id);
+
+                // Mode filter
+                switch (modeFilter) {
+                    case 'new':
+                        return state.state === 'new';
+                    case 'review':
+                        return state.state === 'review' && isCardDue(word.id);
+                    case 'due':
+                        return isCardDue(word.id);
+                    case 'all':
+                        return true;
+                    default:
+                        return isCardDue(word.id);
+                }
+            });
+        }
+
+        // Get due cards with limits
+        function getDueCards() {
+            const filtered = getFilteredVocabulary();
+            const now = Date.now();
+
+            // Separate cards by type
+            const newCards = [];
+            const learningCards = [];
+            const reviewCards = [];
+
+            filtered.forEach(word => {
+                const state = getCardState(word.id);
+                if (state.state === 'new') {
+                    newCards.push(word);
+                } else if (state.state === 'learning' && now >= state.dueDate) {
+                    learningCards.push({ word, dueDate: state.dueDate });
+                } else if (state.state === 'review' && now >= state.dueDate) {
+                    reviewCards.push({ word, dueDate: state.dueDate });
+                }
+            });
+
+            // Sort by due date
+            learningCards.sort((a, b) => a.dueDate - b.dueDate);
+            reviewCards.sort((a, b) => a.dueDate - b.dueDate);
+
+            // Apply new cards limit
+            const availableNewCards = Math.max(0, settings.newCardsLimit - todayNewCards);
+            const limitedNewCards = newCards.slice(0, availableNewCards);
+
+            // Prioritize: learning cards first, then review, then new
+            const result = [
+                ...learningCards.map(c => c.word),
+                ...reviewCards.map(c => c.word),
+                ...limitedNewCards
+            ];
+
+            return result;
+        }
+
+        // Calculate next interval based on SM-2
+        function calculateNextReview(cardId, quality) {
+            // quality: 0 = again, 1 = hard, 2 = good, 3 = easy
+            const state = getCardState(cardId);
+            const now = Date.now();
+
+            let newState = { ...state };
+
+            if (quality === 0) {
+                // Again - reset to learning
+                newState.repetitions = 0;
+                newState.interval = SM2.INTERVALS.AGAIN;
+                newState.state = 'learning';
+            } else if (quality === 1) {
+                // Hard
+                if (state.state === 'new' || state.state === 'learning') {
+                    newState.interval = SM2.INTERVALS.HARD;
+                    newState.state = 'learning';
+                } else {
+                    newState.interval = Math.max(state.interval * 1.2, SM2.INTERVALS.HARD);
+                }
+                newState.easiness = Math.max(SM2.MIN_EASINESS, state.easiness - 0.15);
+            } else if (quality === 2) {
+                // Good
+                if (state.state === 'new') {
+                    newState.interval = SM2.INTERVALS.GOOD;
+                    newState.state = 'learning';
+                    newState.repetitions = 1;
+                } else if (state.state === 'learning') {
+                    if (state.repetitions >= 1) {
+                        newState.interval = 24 * 60; // 1 day
+                        newState.state = 'review';
+                    } else {
+                        newState.interval = SM2.INTERVALS.GOOD;
+                    }
+                    newState.repetitions++;
+                } else {
+                    // Review
+                    newState.interval = state.interval * state.easiness;
+                    newState.repetitions++;
+                }
+            } else if (quality === 3) {
+                // Easy
+                if (state.state === 'new' || state.state === 'learning') {
+                    newState.interval = SM2.INTERVALS.EASY;
+                    newState.state = 'review';
+                    newState.repetitions = 2;
+                } else {
+                    newState.interval = state.interval * state.easiness * 1.3;
+                    newState.repetitions++;
+                }
+                newState.easiness = state.easiness + 0.15;
+            }
+
+            // Set due date
+            newState.dueDate = now + (newState.interval * 60 * 1000);
+
+            // Track new cards studied today
+            if (state.state === 'new') {
+                todayNewCards++;
+            }
+
+            cardProgress[cardId] = newState;
+            saveProgress();
+
+            return newState;
+        }
+
+        // Format interval for display
+        function formatInterval(minutes) {
+            if (minutes < 60) {
+                return `${Math.round(minutes)}m`;
+            } else if (minutes < 24 * 60) {
+                return `${Math.round(minutes / 60)}h`;
+            } else {
+                const days = Math.round(minutes / (24 * 60));
+                return `${days}d`;
+            }
+        }
+
+        // Get preview intervals for rating buttons
+        function getPreviewIntervals(cardId) {
+            const state = getCardState(cardId);
+
+            let againInt = SM2.INTERVALS.AGAIN;
+            let hardInt = SM2.INTERVALS.HARD;
+            let goodInt, easyInt;
+
+            if (state.state === 'new') {
+                goodInt = SM2.INTERVALS.GOOD;
+                easyInt = SM2.INTERVALS.EASY;
+            } else if (state.state === 'learning') {
+                goodInt = state.repetitions >= 1 ? 24 * 60 : SM2.INTERVALS.GOOD;
+                easyInt = SM2.INTERVALS.EASY;
+            } else {
+                hardInt = Math.max(state.interval * 1.2, SM2.INTERVALS.HARD);
+                goodInt = state.interval * state.easiness;
+                easyInt = state.interval * state.easiness * 1.3;
+            }
+
+            return {
+                again: formatInterval(againInt),
+                hard: formatInterval(hardInt),
+                good: formatInterval(goodInt),
+                easy: formatInterval(easyInt)
+            };
+        }
+
+        // Show next card
+        function showNextCard() {
+            const dueCards = getDueCards();
+            isFlipped = false;
+
+            if (dueCards.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            currentCard = dueCards[0];
+            renderCard();
+            updateUI();
+        }
+
+        // Render flashcard
+        function renderCard() {
+            if (!currentCard) return;
+
+            const studyArea = document.getElementById('studyArea');
+            const intervals = getPreviewIntervals(currentCard.id);
+
+            // Determine card direction
+            let showAkkadianFirst = settings.cardDirection === 'akkadian';
+            if (settings.cardDirection === 'random') {
+                showAkkadianFirst = Math.random() > 0.5;
+            }
+
+            const frontWord = showAkkadianFirst ? currentCard.akkadian : currentCard.english;
+            const frontLabel = showAkkadianFirst ? 'Akkadian' : 'English';
+            const backWord = showAkkadianFirst ? currentCard.english : currentCard.akkadian;
+
+            studyArea.innerHTML = `
+                <div class="card-container">
+                    <div class="flashcard" id="flashcard">
+                        <div class="card-face card-front">
+                            <div class="card-word">${frontWord}</div>
+                            <div class="card-pos">${currentCard.part_of_speech}</div>
+                            <div class="card-hint">Click or press Space to reveal</div>
+                        </div>
+                        <div class="card-face card-back">
+                            <div class="card-translation">${backWord}</div>
+                            <div class="card-pos">${currentCard.part_of_speech}</div>
+                            ${currentCard.usage_note ? `<div class="card-note">${currentCard.usage_note}</div>` : ''}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rating-buttons" id="ratingButtons" style="display: none;">
+                    <button class="rating-btn again" data-quality="0">
+                        Again
+                        <span class="rating-interval">${intervals.again}</span>
+                    </button>
+                    <button class="rating-btn hard" data-quality="1">
+                        Hard
+                        <span class="rating-interval">${intervals.hard}</span>
+                    </button>
+                    <button class="rating-btn good" data-quality="2">
+                        Good
+                        <span class="rating-interval">${intervals.good}</span>
+                    </button>
+                    <button class="rating-btn easy" data-quality="3">
+                        Easy
+                        <span class="rating-interval">${intervals.easy}</span>
+                    </button>
+                </div>
+            `;
+
+            // Add event listeners
+            const flashcard = document.getElementById('flashcard');
+            flashcard.addEventListener('click', flipCard);
+            document.querySelectorAll('.rating-btn').forEach(btn => {
+                btn.addEventListener('click', () => rateCard(parseInt(btn.dataset.quality)));
+            });
+
+            // Trigger bounce animation
+            flashcard.classList.add('bounce');
+            setTimeout(() => flashcard.classList.remove('bounce'), 300);
+        }
+
+        // Show empty state
+        function showEmptyState() {
+            const studyArea = document.getElementById('studyArea');
+            const totalCards = vocabulary.length;
+            const masteredCount = Object.values(cardProgress).filter(p => p.state === 'review').length;
+            const learningCount = Object.values(cardProgress).filter(p => p.state === 'learning').length;
+
+            if (sessionStats.reviewed > 0) {
+                // Session complete
+                const accuracy = sessionStats.reviewed > 0
+                    ? Math.round(((sessionStats.reviewed - sessionStats.again) / sessionStats.reviewed) * 100)
+                    : 0;
+
+                studyArea.innerHTML = `
+                    <div class="session-complete">
+                        <h2>🎉 Session Complete!</h2>
+                        <p>Great work! You've reviewed all due cards.</p>
+                        <div class="session-stats">
+                            <div class="session-stat">
+                                <div class="session-stat-value">${sessionStats.reviewed}</div>
+                                <div class="session-stat-label">Cards Reviewed</div>
+                            </div>
+                            <div class="session-stat">
+                                <div class="session-stat-value">${accuracy}%</div>
+                                <div class="session-stat-label">Retention</div>
+                            </div>
+                            <div class="session-stat">
+                                <div class="session-stat-value">${masteredCount}</div>
+                                <div class="session-stat-label">Mastered</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="resetSession()">Study More</button>
+                    </div>
+                `;
+            } else {
+                studyArea.innerHTML = `
+                    <div class="empty-state">
+                        <h2>No Cards Due</h2>
+                        <p>You've studied all available cards! Come back later or adjust your filters.</p>
+                        <p style="margin-top: 20px;">
+                            <strong>${masteredCount}</strong> mastered ·
+                            <strong>${learningCount}</strong> learning ·
+                            <strong>${totalCards - masteredCount - learningCount}</strong> new
+                        </p>
+                        <button class="btn btn-primary" style="margin-top: 20px;" onclick="document.getElementById('modeFilter').value='all'; showNextCard();">
+                            Browse All Cards
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Flip card
+        function flipCard() {
+            if (!currentCard) return;
+
+            isFlipped = !isFlipped;
+            const flashcard = document.getElementById('flashcard');
+            const ratingButtons = document.getElementById('ratingButtons');
+
+            if (isFlipped) {
+                flashcard.classList.add('flipped');
+                ratingButtons.style.display = 'grid';
+            } else {
+                flashcard.classList.remove('flipped');
+                ratingButtons.style.display = 'none';
+            }
+        }
+
+        // Rate card
+        function rateCard(quality) {
+            if (!currentCard) return;
+
+            const cardId = currentCard.id;
+            calculateNextReview(cardId, quality);
+
+            // Update session stats
+            sessionStats.reviewed++;
+            if (quality === 0) sessionStats.again++;
+            if (quality >= 2) sessionStats.correct++;
+
+            showNextCard();
+        }
+
+        // Reset session
+        function resetSession() {
+            sessionStats = { reviewed: 0, correct: 0, again: 0 };
+            document.getElementById('modeFilter').value = 'due';
+            showNextCard();
+        }
+
+        // Update UI stats
+        function updateUI() {
+            const filtered = getFilteredVocabulary();
+
+            // Count cards by state
+            let dueCount = 0;
+            let learningCount = 0;
+            let reviewCount = 0;
+            let newCount = 0;
+
+            vocabulary.forEach(word => {
+                const state = getCardState(word.id);
+                if (state.state === 'new') newCount++;
+                else if (state.state === 'learning') learningCount++;
+                else if (state.state === 'review') reviewCount++;
+
+                if (isCardDue(word.id)) dueCount++;
+            });
+
+            // Update stats display
+            document.getElementById('dueCount').textContent = dueCount;
+            document.getElementById('learningCount').textContent = learningCount;
+            document.getElementById('reviewCount').textContent = reviewCount;
+
+            // Update progress bar
+            const total = vocabulary.length;
+            const newPct = (newCount / total) * 100;
+            const learningPct = (learningCount / total) * 100;
+            const reviewPct = (reviewCount / total) * 100;
+
+            document.getElementById('progressNew').style.width = `${newPct}%`;
+            document.getElementById('progressLearning').style.width = `${learningPct}%`;
+            document.getElementById('progressReview').style.width = `${reviewPct}%`;
+
+            // Add labels if segments are wide enough
+            const progressNew = document.getElementById('progressNew');
+            const progressLearning = document.getElementById('progressLearning');
+            const progressReview = document.getElementById('progressReview');
+
+            progressNew.textContent = newPct > 10 ? `${newCount} new` : '';
+            progressLearning.textContent = learningPct > 10 ? `${learningCount}` : '';
+            progressReview.textContent = reviewPct > 10 ? `${reviewCount}` : '';
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Filter changes
+            document.getElementById('posFilter').addEventListener('change', () => {
+                sessionStats = { reviewed: 0, correct: 0, again: 0 };
+                showNextCard();
+            });
+            document.getElementById('modeFilter').addEventListener('change', () => {
+                sessionStats = { reviewed: 0, correct: 0, again: 0 };
+                showNextCard();
+            });
+
+            // Settings
+            document.getElementById('settingsBtn').addEventListener('click', () => {
+                document.getElementById('settingsPanel').classList.toggle('visible');
+            });
+            document.getElementById('newCardsLimit').addEventListener('change', saveSettings);
+            document.getElementById('cardDirection').addEventListener('change', saveSettings);
+
+            // Reset progress
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+                    cardProgress = {};
+                    todayNewCards = 0;
+                    sessionStats = { reviewed: 0, correct: 0, again: 0 };
+                    saveProgress();
+                    updateUI();
+                    showNextCard();
+                }
+            });
+
+        }
+
+        // Keyboard shortcuts
+        document.onkeyup = function(e) {
+            // Ignore if typing in form fields
+            const tag = e.target.tagName;
+            if (tag === 'SELECT' || tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+            // Space to flip
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (currentCard) flipCard();
+                return;
+            }
+
+            // Number keys to rate
+            if (!currentCard) return;
+
+            // Check for number keys using keyCode as fallback
+            const key = e.key;
+            const keyCode = e.keyCode || e.which;
+
+            if (key === '1' || keyCode === 49 || keyCode === 97) { rateCard(0); }
+            else if (key === '2' || keyCode === 50 || keyCode === 98) { rateCard(1); }
+            else if (key === '3' || keyCode === 51 || keyCode === 99) { rateCard(2); }
+            else if (key === '4' || keyCode === 52 || keyCode === 100) { rateCard(3); }
+        };
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>

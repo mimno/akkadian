@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akkadian Transliteration Input Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -1px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .text-area {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 18px;
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .text-area:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+            background: white;
+        }
+
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .char-category {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease;
+        }
+
+        .char-category:hover {
+            transform: translateY(-2px);
+        }
+
+        .category-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 8px;
+        }
+
+        .char-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .char-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: 'Times New Roman', serif;
+            transition: all 0.2s ease;
+            min-width: 35px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .char-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .char-btn:active {
+            transform: scale(0.95);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-btn {
+            background: #34495e;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .control-btn:hover {
+            background: #2c3e50;
+            transform: translateY(-2px);
+        }
+
+        .output-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .output-text {
+            font-family: 'Times New Roman', serif;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #2c3e50;
+            min-height: 60px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .char-count {
+            font-size: 12px;
+            color: #7f8c8d;
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .character-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="dashboard.html" style="text-decoration: none; color: #3498db; font-size: 0.9em;">← Dashboard</a>
+        <h1>Akkadian Transliteration Tool</h1>
+        
+        <div class="input-section">
+            <textarea id="textInput" class="text-area" placeholder="Start typing your Akkadian transliteration here, or click the character buttons below to insert special characters..."></textarea>
+            <div class="char-count" id="charCount">0 characters</div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="clearText()">Clear All</button>
+            <button class="control-btn" onclick="copyToClipboard()">Copy Text</button>
+            <button class="control-btn" onclick="undoLast()">Undo Last</button>
+        </div>
+
+        <div class="character-grid" id="characterGrid">
+            <!-- Character buttons will be generated here -->
+        </div>
+
+        <div class="output-section">
+            <h3 style="margin-bottom: 15px; color: #2c3e50;">Live Preview:</h3>
+            <div class="output-text" id="outputText">Your transliteration will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        // Akkadian transliteration character sets
+        const akkadianChars = {
+            'Vowels': ['ā', 'ē', 'ī', 'ō', 'ū', 'â', 'ê', 'î', 'ô', 'û'],
+            'Consonants': ['ḫ', 'ḥ', 'ḳ', 'ṣ', 'ṭ', 'š', 'ś', 'ž'],
+            'Special': ['₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '₀'],
+            'Determinatives': ['ᵈ', 'ᵐ', 'ᶠ', 'ᵏⁱ', 'ᵍⁱˢ', 'ᵏᵘʳ', 'ᵘʳᵘ'],
+            'Breaks': ['[', ']', '⸢', '⸣', '...', '----', '°'],
+            'Operators': ['×', '+', '&', '!', '?', '*']
+        };
+
+        let textHistory = [];
+        let currentText = '';
+
+        // Initialize the app
+        function init() {
+            generateCharacterButtons();
+            updateCharCount();
+            
+            // Add event listeners
+            const textInput = document.getElementById('textInput');
+            textInput.addEventListener('input', handleTextChange);
+            textInput.addEventListener('keydown', handleKeyDown);
+        }
+
+        // Generate character buttons
+        function generateCharacterButtons() {
+            const grid = document.getElementById('characterGrid');
+            
+            Object.entries(akkadianChars).forEach(([category, chars]) => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'char-category';
+                
+                const title = document.createElement('div');
+                title.className = 'category-title';
+                title.textContent = category;
+                categoryDiv.appendChild(title);
+                
+                const buttonsDiv = document.createElement('div');
+                buttonsDiv.className = 'char-buttons';
+                
+                chars.forEach(char => {
+                    const button = document.createElement('button');
+                    button.className = 'char-btn';
+                    button.textContent = char;
+                    button.title = `Insert ${char}`;
+                    button.onclick = () => insertCharacter(char);
+                    buttonsDiv.appendChild(button);
+                });
+                
+                categoryDiv.appendChild(buttonsDiv);
+                grid.appendChild(categoryDiv);
+            });
+        }
+
+        // Insert character at cursor position
+        function insertCharacter(char) {
+            const textInput = document.getElementById('textInput');
+            const cursorPos = textInput.selectionStart;
+            const textBefore = textInput.value.substring(0, cursorPos);
+            const textAfter = textInput.value.substring(textInput.selectionEnd);
+            
+            // Save state for undo
+            saveState();
+            
+            textInput.value = textBefore + char + textAfter;
+            textInput.focus();
+            textInput.setSelectionRange(cursorPos + char.length, cursorPos + char.length);
+            
+            handleTextChange();
+        }
+
+        // Handle text input changes
+        function handleTextChange() {
+            const textInput = document.getElementById('textInput');
+            const outputText = document.getElementById('outputText');
+            
+            currentText = textInput.value;
+            outputText.textContent = currentText || 'Your transliteration will appear here...';
+            updateCharCount();
+        }
+
+        // Handle keyboard shortcuts
+        function handleKeyDown(e) {
+            // Ctrl+Z for undo (in addition to browser's default)
+            if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                undoLast();
+            }
+            
+            // Quick character shortcuts
+            if (e.altKey) {
+                const shortcuts = {
+                    'a': 'ā', 'e': 'ē', 'i': 'ī', 'o': 'ō', 'u': 'ū',
+                    'h': 'ḫ', 's': 'š', 't': 'ṭ', 'k': 'ḳ',
+                    '1': '₁', '2': '₂', '3': '₃', '4': '₄', '5': '₅'
+                };
+                
+                if (shortcuts[e.key]) {
+                    e.preventDefault();
+                    insertCharacter(shortcuts[e.key]);
+                }
+            }
+        }
+
+        // Save current state for undo
+        function saveState() {
+            const textInput = document.getElementById('textInput');
+            textHistory.push(textInput.value);
+            if (textHistory.length > 50) { // Limit history size
+                textHistory.shift();
+            }
+        }
+
+        // Update character count
+        function updateCharCount() {
+            const textInput = document.getElementById('textInput');
+            const charCount = document.getElementById('charCount');
+            charCount.textContent = `${textInput.value.length} characters`;
+        }
+
+        // Clear all text
+        function clearText() {
+            if (confirm('Are you sure you want to clear all text?')) {
+                saveState();
+                const textInput = document.getElementById('textInput');
+                textInput.value = '';
+                handleTextChange();
+                textInput.focus();
+            }
+        }
+
+        // Copy to clipboard
+        async function copyToClipboard() {
+            const textInput = document.getElementById('textInput');
+            try {
+                await navigator.clipboard.writeText(textInput.value);
+                
+                // Visual feedback
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.background = '#27ae60';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                }, 1500);
+            } catch (err) {
+                // Fallback for older browsers
+                textInput.select();
+                document.execCommand('copy');
+                alert('Text copied to clipboard!');
+            }
+        }
+
+        // Undo last change
+        function undoLast() {
+            if (textHistory.length > 0) {
+                const textInput = document.getElementById('textInput');
+                textInput.value = textHistory.pop();
+                handleTextChange();
+                textInput.focus();
+            }
+        }
+
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
